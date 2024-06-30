@@ -70,6 +70,7 @@ while run :
     timer.tick(fps)
     screen.fill('black')
     desenha_tabuleiro(nivel)
+    desenha_jogador()
 
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
