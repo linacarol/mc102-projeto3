@@ -13,6 +13,12 @@ fps = 60
 font = pygame.font.Font('freesansbold.ttf', 20)
 nivel = boards
 color = 'blue'
+jogador_img = pygame.transform.scale(pygame.image.load('img/pacman.png'), (45, 45))
+
+jogador_x = 450
+jogador_y = 663
+direcao = 'direita'
+contador = 0
 
 def desenha_tabuleiro(nvl) :
     num1 = (ALTURA - 50) // 32
@@ -49,6 +55,15 @@ def desenha_tabuleiro(nvl) :
                 pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  ((j + 1) * num2, i * num1 + (0.5 * num1)), 2)
 
+def desenha_jogador() :
+    if direcao == 'direita' :
+        screen.blit(jogador_img, (jogador_x, jogador_y))
+    elif direcao == 'esquerda' :
+        screen.blit(pygame.transform.flip(jogador_img, True, False), (jogador_x, jogador_y))
+    elif direcao == 'cima' :
+        screen.blit(pygame.transform.rotate(jogador_img, 90), (jogador_x, jogador_y))
+    elif direcao == 'baixo' :
+        screen.blit(pygame.transform.rotate(jogador_img, 270), (jogador_x, jogador_y))
 
 run = True
 while run :
