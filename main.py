@@ -1,5 +1,6 @@
 from labirintos import labirinto
 import pygame
+import sys
 
 pygame.init()
 
@@ -9,7 +10,7 @@ FPS = 30
 
 tela = pygame.display.set_mode([LARGURA, ALTURA])
 timer = pygame.time.Clock()
-fonte = pygame.font.Font('freesansbold.ttf')
+fonte = pygame.font.Font('freesansbold.ttf', 32)
 nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
@@ -59,7 +60,97 @@ def verifica_posicao(centrox, centroy) :
 
     return espacos
 
+def menu_inicial():
+    while True:
+        tela.fill('black')
+        novo_jogo_txt = fonte.render('Novo Jogo', True, cor)
+        informacoes_txt = fonte.render('Informações', True, cor)
+        sair_txt = fonte.render('Sair', True, cor)
+        carregar_txt = fonte.render('Carregar Jogo', True, cor)
+
+        novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 100))
+        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2))
+        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+        carregar_rect = carregar_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
+
+        tela.blit(novo_jogo_txt, novo_jogo_rect)
+        tela.blit(informacoes_txt, informacoes_rect)
+        tela.blit(sair_txt, sair_rect)
+        tela.blit(carregar_txt, carregar_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if novo_jogo_rect.collidepoint(event.pos):
+                    return
+                if informacoes_rect.collidepoint(event.pos):
+                    informacoes()
+                if sair_rect.collidepoint(event.pos):
+                    pygame.quit()
+                    sys.exit()
+        
+        pygame.display.flip()
+
+        
+def informacoes():
+    while True:
+        tela.fill('black')
+
+        informacoes_txt = fonte.render('Texto exemplo de informações sobre o jogo', True, cor)
+        voltar_txt = fonte.render('Voltar', True, cor)
+
+        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
+        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+
+        tela.blit(informacoes_txt, informacoes_rect)
+        tela.blit(voltar_txt, voltar_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if voltar_rect.collidepoint(event.pos):
+                    return
+        pygame.display.flip()
+
+def salvar_jogo():
+    return
+
+def pause():
+    while True:
+        tela.fill('black')
+        sair_txt = fonte.render('Sair', True, cor)
+        voltar_txt = fonte.render('Voltar', True, cor)
+        salvar_txt = fonte.render('Salvar', True, cor)
+
+        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
+        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2))
+        salvar_rect = salvar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+
+        tela.blit(sair_txt, sair_rect)
+        tela.blit(voltar_txt, voltar_rect)
+        tela.blit(salvar_txt, salvar_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if sair_rect.collidepoint(event.pos):
+                    pygame.quit()
+                    sys.exit()
+                if voltar_rect.collidepoint(event.pos):
+                    return
+                if salvar_rect.collidepoint(event.pos):
+                    salvar_jogo()
+                    return
+        pygame.display.flip()
+
 rodando = True
+menu_inicial()
 while rodando :
     timer.tick(FPS)
     if cont < 19 :
@@ -85,6 +176,8 @@ while rodando :
                 direcao = 'cima'
             elif event.key == pygame.K_DOWN :
                 direcao = 'baixo'
+            elif event.key == pygame.K_p:
+                pause()
 
     pygame.display.flip()
 pygame.quit()
