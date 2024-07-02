@@ -81,13 +81,13 @@ def verifica_posicao(centrox, centroy) :
     num = 14
 
     if centrox // 40 < 29 :
-        if lab[(centroy-(num+2))//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy-(num+2))//alt + 1][centrox//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox)//larg] == 0 :
             espacos[3] = True
-        if lab[(centroy+(num+14))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy+(num+14))//alt - 1][centrox//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox)//larg] == 0 :
             espacos[2] = True
         if lab[(centroy-(num-10))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num+4))//alt][(centrox-(num))//larg + 1] == 0 :
             espacos[0] = True
-        if lab[(centroy-(num-10))//alt][(centrox+(num-2))//larg - 1] == 0 and lab[(centroy+(num+4))//alt][(centrox+(num-2))//larg - 1] == 0 :
+        if lab[(centroy-(num-10))//alt][(centrox+(num+6))//larg - 1] == 0 and lab[(centroy+(num+4))//alt][(centrox+(num+6))//larg - 1] == 0 :
             espacos[1] = True
     else :
         espacos[0] = True
