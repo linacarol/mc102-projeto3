@@ -10,7 +10,7 @@ FPS = 30
 
 tela = pygame.display.set_mode([LARGURA, ALTURA])
 timer = pygame.time.Clock()
-fonte = pygame.font.Font('freesansbold.ttf', 32)
+fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 32)
 nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
@@ -19,12 +19,17 @@ jogador_imgs = []
 for i in range(1, 5) :
     jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (28, 28)))
 
-jog_x = 30
-jog_y = 395
+if nivel == 0 :
+    posx_inicial = 30
+    posy_inicial = 395
+
+jog_x = posx_inicial
+jog_y = posy_inicial
 direcao = 'direita'
 direcao_comando = 'direita'
 cont = 0
 velocidade_jog = 2
+
 
 def desenha_labirinto(lab) :
     larg = LARGURA // 40
@@ -171,14 +176,57 @@ def pause():
                     return
         pygame.display.flip()
 
+def fim_jogo() :
+    while True :
+        global tempo
+        global nivel
+        global jog_x
+        global jog_y
+        global direcao
+        global direcao_comando
+
+        tela.fill(cor_fundo)
+        fim_txt = fonte.render('Fim de jogo', True, cor)
+        novo_jogo_txt = fonte.render('Jogar novamente', True, cor)
+        sair_txt = fonte.render('Sair', True, cor)
+
+        fim_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 80))
+        novo_jogo_rect = novo_jogo_txt.get_rect(center = (LARGURA/2, ALTURA/2))
+        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 50))
+
+        tela.blit(fim_txt, fim_rect)
+        tela.blit(novo_jogo_txt, novo_jogo_rect)
+        tela.blit(sair_txt, sair_rect)
+
+        for event in pygame.event.get() :
+            if event.type == pygame.QUIT :
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN :
+                if sair_rect.collidepoint(event.pos) :
+                    pygame.quit()
+                    sys.exit()
+                if novo_jogo_rect.collidepoint(event.pos) :
+                    tempo = 120
+                    nivel = 0
+                    jog_x = 30
+                    jog_y = 395
+                    direcao = 'direita'
+                    direcao_comando = 'direita'
+                    return
+
+        pygame.display.flip()
+
 rodando = True
 menu_inicial()
+tempo = 120
 while rodando :
     timer.tick(FPS)
     if cont < 19 :
         cont += 1
     else :
         cont = 0
+    tempo -= 1
     tela.fill(cor_fundo)
     desenha_labirinto(lab)
     desenha_jogador()
@@ -186,6 +234,9 @@ while rodando :
     centro_y = jog_y + 15
     pode_andar = verifica_posicao(centro_x, centro_y)
     jog_x, jog_y = move_jogador(jog_x, jog_y)
+
+    if tempo <= 0 :
+        fim_jogo()
 
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
