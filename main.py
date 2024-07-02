@@ -10,40 +10,59 @@ FPS = 30
 
 tela = pygame.display.set_mode([LARGURA, ALTURA])
 timer = pygame.time.Clock()
-fonte = pygame.font.Font('freesansbold.ttf', 32)
+fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 30)
 nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
+cor_fundo = 'black'
 jogador_imgs = []
 for i in range(1, 5) :
-    jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (40, 40)))
+    jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (28, 28)))
+vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 
-jog_x = 600
-jog_y = 424
+if nivel == 0 :
+    posx_inicial = 30
+    posy_inicial = 395
+    tempo_inicial = 1300
+
+jog_x = posx_inicial
+jog_y = posy_inicial
 direcao = 'direita'
+direcao_comando = 'direita'
 cont = 0
+velocidade_jog = 2
+vidas = 3
+
 
 def desenha_labirinto(lab) :
-    larg = (LARGURA + 100) // 32
-    alt = (ALTURA - 70) // 32
+    larg = LARGURA // 40
+    alt = (ALTURA - 70) // 21
     for i in range(len(lab)) :
         for j in range(len(lab[i])) :
-            if lab[i][j] == 1 :
-                pygame.draw.line(tela, cor, ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 1) * alt), 3)
-            elif lab[i][j] == 2 :
-                pygame.draw.line(tela, cor, (j * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 3)
-            elif lab[i][j] == 3 :
-                pygame.draw.line(tela, cor, (j * larg, (i + 0.5) * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 3)
-                pygame.draw.line(tela, cor, ((j + 0.5) * larg, (i + 0.5) * alt), ((j + 0.5) * larg, (i + 1) * alt), 3)
-            elif lab[i][j] == 4 :
-                pygame.draw.line(tela, cor, ((j + 0.5) * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 3)
-                pygame.draw.line(tela, cor, ((j + 0.5) * larg, (i + 0.5) * alt), ((j + 0.5) * larg, (i + 1) * alt), 3)
-            elif lab[i][j] == 5 :
-                pygame.draw.line(tela, cor, ((j + 0.5) * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 3)
-                pygame.draw.line(tela, cor, ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 3)
-            elif lab[i][j] == 6 :
-                pygame.draw.line(tela, cor, (j * larg, (i + 0.5) * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 3)
-                pygame.draw.line(tela, cor, ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 3)
+            if lab[i][j] != 0 :
+                pygame.draw.rect(tela, cor, (j*larg, i*alt, larg, alt))
+                pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 2)
+                pygame.draw.line(tela, cor_fundo, (j * larg, i * alt), ((j + 1) * larg, i * alt), 2)
+                pygame.draw.line(tela, cor_fundo, ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 2)
+                pygame.draw.line(tela, cor_fundo, ((j + 1) * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 1) * alt), 2)
+                if j > 0 :
+                    if lab[i][j-1] != 0 :          
+                        pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
+    
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.6*tempo_inicial, 30)))
+    if tempo > tempo_inicial/2 :
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.6*tempo, 30)))
+    elif tempo > tempo_inicial/4 :
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.6*tempo, 30)))
+    else :
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.6*tempo, 30)))
+
+    if vidas > 0 :
+        tela.blit(vida_img, (1020, 800))
+    if vidas > 1 :
+        tela.blit(vida_img, (1070, 800))
+    if vidas > 2 :
+        tela.blit(vida_img, (1120, 800))
 
 def desenha_jogador() :
     if direcao == 'direita' :
@@ -57,26 +76,67 @@ def desenha_jogador() :
 
 def verifica_posicao(centrox, centroy) :
     espacos = [False, False, False, False]
+    larg = LARGURA // 40
+    alt = (ALTURA - 70) // 21
+    num = 14
+
+    if centrox // 40 < 29 :
+        if lab[(centroy-(num+8))//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-(num+8))//alt + 1][(centrox-num)//larg] == 0 :
+            espacos[3] = True
+        if lab[(centroy+(num+4))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num+4))//alt - 1][(centrox-num)//larg] == 0 :
+            espacos[2] = True
+        if lab[(centroy-(num+2))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num-2))//alt][(centrox-(num))//larg + 1] == 0 :
+            espacos[0] = True
+        if lab[(centroy-(num+2))//alt][(centrox+(num-2))//larg - 1] == 0 and lab[(centroy+(num-2))//alt][(centrox+(num-2))//larg - 1] == 0 :
+            espacos[1] = True
+    else :
+        espacos[0] = True
+        espacos[1] = True
 
     return espacos
 
+def move_jogador(jog_x, jog_y) :
+    global direcao
+    global direcao_comando
+    tecla = pygame.key.get_pressed()
+    if tecla[pygame.K_RIGHT] and pode_andar[0]:
+        direcao = 'direita'
+        direcao_comando = 'direita'
+        jog_x += velocidade_jog
+    elif tecla[pygame.K_LEFT] and pode_andar[1] :
+        direcao = 'esquerda'
+        direcao_comando = 'esquerda'
+        jog_x -= velocidade_jog
+    elif tecla[pygame.K_UP] and pode_andar[2] :
+        direcao = 'cima'
+        direcao_comando = 'cima'
+        jog_y -= velocidade_jog
+    elif tecla[pygame.K_DOWN] and pode_andar[3] :
+        direcao = 'baixo'
+        direcao_comando = 'baixo'
+        jog_y += velocidade_jog
+    return jog_x, jog_y
+
 def menu_inicial():
     while True:
-        tela.fill('black')
+        tela.fill(cor_fundo)
         novo_jogo_txt = fonte.render('Novo Jogo', True, cor)
         informacoes_txt = fonte.render('Informações', True, cor)
         sair_txt = fonte.render('Sair', True, cor)
         carregar_txt = fonte.render('Carregar Jogo', True, cor)
+        ranking_txt = fonte.render('Ranking', True, cor)
 
         novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 100))
         informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2))
-        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 100))
         carregar_rect = carregar_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
+        ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
 
         tela.blit(novo_jogo_txt, novo_jogo_rect)
         tela.blit(informacoes_txt, informacoes_rect)
         tela.blit(sair_txt, sair_rect)
         tela.blit(carregar_txt, carregar_rect)
+        tela.blit(ranking_txt, ranking_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -84,19 +144,20 @@ def menu_inicial():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if novo_jogo_rect.collidepoint(event.pos):
-                    return
+                    return 'novo_jogo'
                 if informacoes_rect.collidepoint(event.pos):
                     informacoes()
                 if sair_rect.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
+                if ranking_rect.collidepoint(event.pos):
+                    mostrar_ranking()
         
         pygame.display.flip()
-
-        
+     
 def informacoes():
     while True:
-        tela.fill('black')
+        tela.fill(cor_fundo)
 
         informacoes_txt = fonte.render('Texto exemplo de informações sobre o jogo', True, cor)
         voltar_txt = fonte.render('Voltar', True, cor)
@@ -121,7 +182,7 @@ def salvar_jogo():
 
 def pause():
     while True:
-        tela.fill('black')
+        tela.fill(cor_fundo)
         sair_txt = fonte.render('Sair', True, cor)
         voltar_txt = fonte.render('Voltar', True, cor)
         salvar_txt = fonte.render('Salvar', True, cor)
@@ -149,35 +210,135 @@ def pause():
                     return
         pygame.display.flip()
 
+def fim_jogo() :
+    while True :
+        global tempo
+        global nivel
+        global jog_x
+        global jog_y
+        global direcao
+        global direcao_comando
+        global vidas
+
+        tela.fill(cor_fundo)
+        fim_txt = fonte.render('Fim de jogo', True, cor)
+        novo_jogo_txt = fonte.render('Jogar novamente', True, cor)
+        sair_txt = fonte.render('Sair', True, cor)
+
+        fim_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 80))
+        novo_jogo_rect = novo_jogo_txt.get_rect(center = (LARGURA/2, ALTURA/2))
+        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 50))
+
+        tela.blit(fim_txt, fim_rect)
+        tela.blit(novo_jogo_txt, novo_jogo_rect)
+        tela.blit(sair_txt, sair_rect)
+
+        for event in pygame.event.get() :
+            if event.type == pygame.QUIT :
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN :
+                if sair_rect.collidepoint(event.pos) :
+                    pygame.quit()
+                    sys.exit()
+                if novo_jogo_rect.collidepoint(event.pos) :
+                    vidas = 3
+                    tempo = tempo_inicial
+                    nivel = 0
+                    jog_x = 30
+                    jog_y = 395
+                    direcao = 'direita'
+                    direcao_comando = 'direita'
+                    return
+
+        pygame.display.flip()
+
+def mostrar_nivel(nivel):
+    tela.fill(cor_fundo)
+    nivel_txt = fonte.render(f'Nível {nivel+1}', True, cor)
+    nivel_rect = nivel_txt.get_rect(center=(LARGURA/2, ALTURA/2))
+    tela.blit(nivel_txt, nivel_rect)
+    pygame.display.flip()
+    pygame.time.delay(2000)
+
+def mostrar_ranking():
+    ranking = [
+        {'posicao': '1º', 'pontos': '?????'},
+        {'posicao': '2º', 'pontos': '?????'},
+        {'posicao': '3º', 'pontos': '?????'},
+        {'posicao': '4º', 'pontos': '?????'},
+        {'posicao': '5º', 'pontos': '?????'}
+    ]
+
+    while True:
+        tela.fill(cor_fundo)
+        ranking_txt = fonte.render('Ranking', True, cor)
+        voltar_txt = fonte.render('Voltar', True, cor)
+        ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 350))
+        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 360))
+        
+        tela.blit(ranking_txt, ranking_rect)
+        tela.blit(voltar_txt, voltar_rect)
+
+        for i, item in enumerate(ranking):
+            posicao_txt = fonte.render(f'{item['posicao']} ........................ {item['pontos']}', True, cor)
+            posicao_rect = posicao_txt.get_rect(center=(LARGURA/2, 200 + i * 60))
+            tela.blit(posicao_txt, posicao_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if voltar_rect.collidepoint:
+                    return
+    
+        pygame.display.flip()
+    
+
 rodando = True
-menu_inicial()
+opcao = menu_inicial()
+if opcao == 'novo_jogo':
+    mostrar_nivel(nivel)
+tempo = tempo_inicial
 while rodando :
     timer.tick(FPS)
     if cont < 19 :
         cont += 1
     else :
         cont = 0
-    tela.fill('black')
+    tempo -= 1
+    tela.fill(cor_fundo)
     desenha_labirinto(lab)
     desenha_jogador()
-    centro_x = jog_x + 20
-    centro_y = jog_y + 20
+    centro_x = jog_x + 15
+    centro_y = jog_y + 15
     pode_andar = verifica_posicao(centro_x, centro_y)
+    jog_x, jog_y = move_jogador(jog_x, jog_y)
+
+    if tempo <= 0 or vidas < 0:
+        fim_jogo()
 
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
             rodando = False
         if event.type == pygame.KEYDOWN :
-            if event.key == pygame.K_RIGHT :
-                direcao = 'direita'
-            elif event.key == pygame.K_LEFT :
-                direcao = 'esquerda'
-            elif event.key == pygame.K_UP :
-                direcao = 'cima'
-            elif event.key == pygame.K_DOWN :
-                direcao = 'baixo'
-            elif event.key == pygame.K_p:
+            if event.key == pygame.K_p:
                 pause()
+
+        if direcao_comando == 'direita' and pode_andar[0] :
+            direcao = 'direita'
+        if direcao_comando == 'esquerda' and pode_andar[1] :
+            direcao = 'esquerda'
+        if direcao_comando == 'cima' and pode_andar[2] :
+            direcao = 'cima'
+        if direcao_comando == 'baixo' and pode_andar[3] :
+            direcao = 'baixo'
+        
+        if jog_x > 1200 :
+            jog_x = -30
+        elif jog_x < -30 :
+            jog_x = 1200
 
     pygame.display.flip()
 pygame.quit()
