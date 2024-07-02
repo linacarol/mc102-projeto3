@@ -11,19 +11,19 @@ FPS = 30
 tela = pygame.display.set_mode([LARGURA, ALTURA])
 timer = pygame.time.Clock()
 fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 32)
+fonte_titulo = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 38)
+fonte_instrucoes = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 22)
 nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
 cor_fundo = 'black'
-jogador_imgs = []
-for i in range(1, 5) :
-    jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (28, 28)))
+jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/1.png'), (28, 28))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 
 if nivel == 0 :
     posx_inicial = 30
     posy_inicial = 395
-    tempo_inicial = 1300
+    tempo_inicial = 6500
 
 jog_x = posx_inicial
 jog_y = posy_inicial
@@ -49,13 +49,13 @@ def desenha_labirinto(lab) :
                     if lab[i][j-1] != 0 :          
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
     
-    pygame.draw.rect(tela, 'white', ((60, 800), (0.6*tempo_inicial, 30)))
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.14*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
-        pygame.draw.rect(tela, 'green', ((60, 800), (0.6*tempo, 30)))
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.14*tempo, 30)))
     elif tempo > tempo_inicial/4 :
-        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.6*tempo, 30)))
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.14*tempo, 30)))
     else :
-        pygame.draw.rect(tela, 'red', ((60, 800), (0.6*tempo, 30)))
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.14*tempo, 30)))
 
     if vidas > 0 :
         tela.blit(vida_img, (1020, 800))
@@ -66,13 +66,13 @@ def desenha_labirinto(lab) :
 
 def desenha_jogador() :
     if direcao == 'direita' :
-        tela.blit(jogador_imgs[cont // 5], (jog_x, jog_y))
+        tela.blit(jogador_img, (jog_x, jog_y))
     elif direcao == 'esquerda' :
-        tela.blit(pygame.transform.flip(jogador_imgs[cont // 5], True, False), (jog_x, jog_y))
+        tela.blit(pygame.transform.flip(jogador_img, True, False), (jog_x, jog_y))
     elif direcao == 'cima' :
-        tela.blit(pygame.transform.rotate(jogador_imgs[cont // 5], 90), (jog_x, jog_y))
+        tela.blit(pygame.transform.rotate(jogador_img, 90), (jog_x, jog_y))
     elif direcao == 'baixo' :
-        tela.blit(pygame.transform.rotate(jogador_imgs[cont // 5], 270), (jog_x, jog_y))
+        tela.blit(pygame.transform.rotate(jogador_img, 270), (jog_x, jog_y))
 
 def verifica_posicao(centrox, centroy) :
     espacos = [False, False, False, False]
@@ -120,16 +120,19 @@ def move_jogador(jog_x, jog_y) :
 def menu_inicial():
     while True:
         tela.fill(cor_fundo)
+        titulo_txt = fonte_titulo.render('Os Labirintos da Unicamp', True, 'white')
         novo_jogo_txt = fonte.render('Novo Jogo', True, cor)
         informacoes_txt = fonte.render('Informações', True, cor)
         sair_txt = fonte.render('Sair', True, cor)
         carregar_txt = fonte.render('Carregar Jogo', True, cor)
 
-        novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 100))
-        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2))
-        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
-        carregar_rect = carregar_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
+        titulo_rect = titulo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 200))
+        novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 60))
+        carregar_rect = carregar_txt.get_rect(center=(LARGURA/2, ALTURA/2))
+        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2 + 60))
+        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 120))
 
+        tela.blit(titulo_txt, titulo_rect)
         tela.blit(novo_jogo_txt, novo_jogo_rect)
         tela.blit(informacoes_txt, informacoes_rect)
         tela.blit(sair_txt, sair_rect)
@@ -154,13 +157,38 @@ def informacoes():
     while True:
         tela.fill(cor_fundo)
 
-        informacoes_txt = fonte.render('Texto exemplo de informações sobre o jogo', True, cor)
+        jogador_txt_linha1 = fonte_instrucoes.render('Este é você!', True, cor)
+        jogador_txt_linha2 = fonte_instrucoes.render('Utilize as setas do teclado para andar', True, cor)
+        professor_txt_linha1 = fonte_instrucoes.render('Este é um professor!', True, cor)
+        professor_txt_linha2 = fonte_instrucoes.render('Derrote-o respondendo às perguntas', True, cor)
+        colega_txt_linha1 = fonte_instrucoes.render('Este é seu colega!', True, cor)
+        colega_txt_linha2 = fonte_instrucoes.render('Liberte-o com os seus conhecimentos', True, cor)
+        relogio_txt = fonte_instrucoes.render('Colete relógios para ganhar tempo', True, cor)
+        coracao_txt = fonte_instrucoes.render('Não perca todas as suas vidas', True, cor)
+        pausar_txt = fonte_instrucoes.render('Pressione p para pausar o jogo', True, cor)
         voltar_txt = fonte.render('Voltar', True, cor)
 
-        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
-        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+        jogador_rect_linha1 = jogador_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 - 50))
+        jogador_rect_linha2 = jogador_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 - 10))
+        professor_rect_linha1 = professor_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 100))
+        professor_rect_linha2 = professor_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 140))
+        colega_rect_linha1 = colega_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 220))
+        colega_rect_linha2 = colega_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 260))
+        relogio_rect = relogio_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 350))
+        coracao_rect = coracao_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 440))
+        pausar_rect = pausar_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 530))
+        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, 6*ALTURA/7 + 50))
 
-        tela.blit(informacoes_txt, informacoes_rect)
+        tela.blit(pygame.transform.scale(jogador_img, (70, 70)), (LARGURA/8 - 30, ALTURA / 6 - 60))
+        tela.blit(jogador_txt_linha1, jogador_rect_linha1)
+        tela.blit(jogador_txt_linha2, jogador_rect_linha2)
+        tela.blit(professor_txt_linha1, professor_rect_linha1)
+        tela.blit(professor_txt_linha2, professor_rect_linha2)
+        tela.blit(colega_txt_linha1, colega_rect_linha1)
+        tela.blit(colega_txt_linha2, colega_rect_linha2)
+        tela.blit(relogio_txt, relogio_rect)
+        tela.blit(coracao_txt, coracao_rect)
+        tela.blit(pausar_txt, pausar_rect)
         tela.blit(voltar_txt, voltar_rect)
 
         for event in pygame.event.get():
