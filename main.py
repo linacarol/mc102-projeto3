@@ -22,6 +22,7 @@ for i in range(1, 5) :
 if nivel == 0 :
     posx_inicial = 30
     posy_inicial = 395
+    tempo_inicial = 1300
 
 jog_x = posx_inicial
 jog_y = posy_inicial
@@ -45,6 +46,12 @@ def desenha_labirinto(lab) :
                 if j > 0 :
                     if lab[i][j-1] != 0 :          
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
+    if tempo > tempo_inicial/2 :
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.6*tempo, 30)))
+    elif tempo > tempo_inicial/4 :
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.6*tempo, 30)))
+    else :
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.6*tempo, 30)))
 
 def desenha_jogador() :
     if direcao == 'direita' :
@@ -207,7 +214,7 @@ def fim_jogo() :
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
-                    tempo = 12000
+                    tempo = tempo_inicial
                     nivel = 0
                     jog_x = 30
                     jog_y = 395
@@ -219,14 +226,14 @@ def fim_jogo() :
 
 rodando = True
 menu_inicial()
-tempo = 12000
+tempo = tempo_inicial
 while rodando :
     timer.tick(FPS)
     if cont < 19 :
         cont += 1
     else :
         cont = 0
-    #tempo -= 1
+    tempo -= 1
     tela.fill(cor_fundo)
     desenha_labirinto(lab)
     desenha_jogador()
