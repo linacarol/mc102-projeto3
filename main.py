@@ -207,7 +207,7 @@ def fim_jogo() :
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
-                    tempo = 120
+                    tempo = 12000
                     nivel = 0
                     jog_x = 30
                     jog_y = 395
@@ -219,14 +219,14 @@ def fim_jogo() :
 
 rodando = True
 menu_inicial()
-tempo = 120
+tempo = 12000
 while rodando :
     timer.tick(FPS)
     if cont < 19 :
         cont += 1
     else :
         cont = 0
-    tempo -= 1
+    #tempo -= 1
     tela.fill(cor_fundo)
     desenha_labirinto(lab)
     desenha_jogador()
