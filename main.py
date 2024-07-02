@@ -14,9 +14,10 @@ fonte = pygame.font.Font('freesansbold.ttf', 32)
 nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
+cor_fundo = 'black'
 jogador_imgs = []
 for i in range(1, 5) :
-    jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (30, 30)))
+    jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (28, 28)))
 
 jog_x = 30
 jog_y = 395
@@ -32,13 +33,13 @@ def desenha_labirinto(lab) :
         for j in range(len(lab[i])) :
             if lab[i][j] != 0 :
                 pygame.draw.rect(tela, cor, (j*larg, i*alt, larg, alt))
-                pygame.draw.line(tela, 'black', (j * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 2)
-                pygame.draw.line(tela, 'black', (j * larg, i * alt), ((j + 1) * larg, i * alt), 2)
-                pygame.draw.line(tela, 'black', ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 2)
-                pygame.draw.line(tela, 'black', ((j + 1) * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 1) * alt), 2)
+                pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 2)
+                pygame.draw.line(tela, cor_fundo, (j * larg, i * alt), ((j + 1) * larg, i * alt), 2)
+                pygame.draw.line(tela, cor_fundo, ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 2)
+                pygame.draw.line(tela, cor_fundo, ((j + 1) * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 1) * alt), 2)
                 if j > 0 :
                     if lab[i][j-1] != 0 :          
-                        pygame.draw.line(tela, 'black', (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
+                        pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
 
 def desenha_jogador() :
     if direcao == 'direita' :
@@ -54,16 +55,16 @@ def verifica_posicao(centrox, centroy) :
     espacos = [False, False, False, False]
     larg = LARGURA // 40
     alt = (ALTURA - 70) // 21
-    num = 15
+    num = 14
 
     if centrox // 40 < 29 :
-        if lab[(centroy-num)//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-num)//alt + 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy-(num+8))//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-(num+8))//alt + 1][(centrox-num)//larg] == 0 :
             espacos[3] = True
-        if lab[(centroy+(num-2))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num-2))//alt - 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy+(num+4))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num+4))//alt - 1][(centrox-num)//larg] == 0 :
             espacos[2] = True
-        if lab[(centroy-num)//alt][(centrox-(num-5))//larg + 1] == 0 and lab[(centroy+(num-2))//alt][(centrox-(num-5))//larg + 1] == 0 :
+        if lab[(centroy-(num+2))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num-2))//alt][(centrox-(num))//larg + 1] == 0 :
             espacos[0] = True
-        if lab[(centroy-num)//alt][(centrox+(num-5))//larg - 1] == 0 and lab[(centroy+(num-2))//alt][(centrox+(num-5))//larg - 1] == 0 :
+        if lab[(centroy-(num+2))//alt][(centrox+(num-2))//larg - 1] == 0 and lab[(centroy+(num-2))//alt][(centrox+(num-2))//larg - 1] == 0 :
             espacos[1] = True
     else :
         espacos[0] = True
@@ -84,7 +85,7 @@ def move_jogador(jog_x, jog_y) :
 
 def menu_inicial():
     while True:
-        tela.fill('black')
+        tela.fill(cor_fundo)
         novo_jogo_txt = fonte.render('Novo Jogo', True, cor)
         informacoes_txt = fonte.render('Informações', True, cor)
         sair_txt = fonte.render('Sair', True, cor)
@@ -117,7 +118,7 @@ def menu_inicial():
      
 def informacoes():
     while True:
-        tela.fill('black')
+        tela.fill(cor_fundo)
 
         informacoes_txt = fonte.render('Texto exemplo de informações sobre o jogo', True, cor)
         voltar_txt = fonte.render('Voltar', True, cor)
@@ -142,7 +143,7 @@ def salvar_jogo():
 
 def pause():
     while True:
-        tela.fill('black')
+        tela.fill(cor_fundo)
         sair_txt = fonte.render('Sair', True, cor)
         voltar_txt = fonte.render('Voltar', True, cor)
         salvar_txt = fonte.render('Salvar', True, cor)
@@ -178,7 +179,7 @@ while rodando :
         cont += 1
     else :
         cont = 0
-    tela.fill('black')
+    tela.fill(cor_fundo)
     desenha_labirinto(lab)
     desenha_jogador()
     centro_x = jog_x + 15
