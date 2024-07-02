@@ -127,18 +127,21 @@ def menu_inicial():
         informacoes_txt = fonte.render('Informações', True, cor)
         sair_txt = fonte.render('Sair', True, cor)
         carregar_txt = fonte.render('Carregar Jogo', True, cor)
+        ranking_txt = fonte.render('Ranking', True, cor)
 
         titulo_rect = titulo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 200))
         novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 60))
         carregar_rect = carregar_txt.get_rect(center=(LARGURA/2, ALTURA/2))
         informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2 + 60))
-        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 120))
+        ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 120))
+        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 180))
 
         tela.blit(titulo_txt, titulo_rect)
         tela.blit(novo_jogo_txt, novo_jogo_rect)
-        tela.blit(informacoes_txt, informacoes_rect)
-        tela.blit(sair_txt, sair_rect)
         tela.blit(carregar_txt, carregar_rect)
+        tela.blit(informacoes_txt, informacoes_rect)
+        tela.blit(ranking_txt, ranking_rect)
+        tela.blit(sair_txt, sair_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -152,6 +155,8 @@ def menu_inicial():
                 if sair_rect.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
+                if ranking_rect.collidepoint(event.pos):
+                    mostrar_ranking()
         
         pygame.display.flip()
      
@@ -278,9 +283,54 @@ def fim_jogo() :
 
         pygame.display.flip()
 
+def mostrar_nivel(nivel):
+    tela.fill(cor_fundo)
+    nivel_txt = fonte.render(f'Nível {nivel+1}', True, cor)
+    nivel_rect = nivel_txt.get_rect(center=(LARGURA/2, ALTURA/2))
+    tela.blit(nivel_txt, nivel_rect)
+    pygame.display.flip()
+    pygame.time.delay(2000)
+
+def mostrar_ranking():
+    ranking = [
+        {'posicao': '1º', 'pontos': '?????'},
+        {'posicao': '2º', 'pontos': '?????'},
+        {'posicao': '3º', 'pontos': '?????'},
+        {'posicao': '4º', 'pontos': '?????'},
+        {'posicao': '5º', 'pontos': '?????'}
+    ]
+
+    while True:
+        tela.fill(cor_fundo)
+        ranking_txt = fonte.render('Ranking', True, cor)
+        voltar_txt = fonte.render('Voltar', True, cor)
+        ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 350))
+        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 360))
+        
+        tela.blit(ranking_txt, ranking_rect)
+        tela.blit(voltar_txt, voltar_rect)
+
+        for i, item in enumerate(ranking):
+            posicao_txt = fonte.render(f'{item['posicao']} ........................ {item['pontos']}', True, cor)
+            posicao_rect = posicao_txt.get_rect(center=(LARGURA/2, 200 + i * 60))
+            tela.blit(posicao_txt, posicao_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if voltar_rect.collidepoint:
+                    return
+    
+        pygame.display.flip()
+
 rodando = True
 menu_inicial()
 tempo = tempo_inicial
+opcao = menu_inicial()
+if opcao == 'novo_jogo':
+    mostrar_nivel(nivel)
 while rodando :
     timer.tick(FPS)
     if cont < 19 :
