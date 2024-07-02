@@ -17,9 +17,7 @@ nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
 cor_fundo = 'black'
-jog_frente_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_frente.PNG'), (28, 28))
-jog_lado_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_lado.PNG'), (28, 28))
-jog_tras_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_tras.PNG'), (28, 28))
+jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (35, 35))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 
 if nivel == 0 :
@@ -68,13 +66,13 @@ def desenha_labirinto(lab) :
 
 def desenha_jogador() :
     if direcao == 'direita' :
-        tela.blit(jog_lado_img, (jog_x, jog_y))
+        tela.blit(pygame.transform.flip(jogador_img, True, False), (jog_x, jog_y))
     elif direcao == 'esquerda' :
-        tela.blit(pygame.transform.flip(jog_lado_img, True, False), (jog_x, jog_y))
+        tela.blit(jogador_img, (jog_x, jog_y))
     elif direcao == 'cima' :
-        tela.blit(jog_tras_img, (jog_x, jog_y))
+        tela.blit(pygame.transform.flip(jogador_img, True, False), (jog_x, jog_y))
     elif direcao == 'baixo' :
-        tela.blit(jog_frente_img, (jog_x, jog_y))
+        tela.blit(jogador_img, (jog_x, jog_y))
 
 def verifica_posicao(centrox, centroy) :
     espacos = [False, False, False, False]
@@ -83,13 +81,13 @@ def verifica_posicao(centrox, centroy) :
     num = 14
 
     if centrox // 40 < 29 :
-        if lab[(centroy-(num+8))//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-(num+8))//alt + 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy-(num+2))//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox-num)//larg] == 0 :
             espacos[3] = True
-        if lab[(centroy+(num+4))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num+4))//alt - 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy+(num+14))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox-num)//larg] == 0 :
             espacos[2] = True
-        if lab[(centroy-(num+2))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num-2))//alt][(centrox-(num))//larg + 1] == 0 :
+        if lab[(centroy-(num-10))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num+4))//alt][(centrox-(num))//larg + 1] == 0 :
             espacos[0] = True
-        if lab[(centroy-(num+2))//alt][(centrox+(num-2))//larg - 1] == 0 and lab[(centroy+(num-2))//alt][(centrox+(num-2))//larg - 1] == 0 :
+        if lab[(centroy-(num-10))//alt][(centrox+(num-2))//larg - 1] == 0 and lab[(centroy+(num+4))//alt][(centrox+(num-2))//larg - 1] == 0 :
             espacos[1] = True
     else :
         espacos[0] = True
@@ -186,7 +184,7 @@ def informacoes():
         pausar_rect = pausar_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 530))
         voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, 6*ALTURA/7 + 50))
 
-        tela.blit(pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_frente.PNG'), (70, 70)), (LARGURA/8 - 30, ALTURA / 6 - 60))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (70, 70)), (LARGURA/8 - 30, ALTURA / 6 - 60))
         tela.blit(jogador_txt_linha1, jogador_rect_linha1)
         tela.blit(jogador_txt_linha2, jogador_rect_linha2)
         tela.blit(professor_txt_linha1, professor_rect_linha1)
@@ -326,7 +324,6 @@ def mostrar_ranking():
         pygame.display.flip()
 
 rodando = True
-menu_inicial()
 tempo = tempo_inicial
 opcao = menu_inicial()
 if opcao == 'novo_jogo':
