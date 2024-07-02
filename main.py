@@ -56,13 +56,17 @@ def verifica_posicao(centrox, centroy) :
     alt = (ALTURA - 70) // 21
     num = 15
 
-    if lab[(centroy-15)//alt + 1][(centrox+15)//larg] == 0 and lab[(centroy-15)//alt + 1][(centrox-15)//larg] == 0 :
-        espacos[3] = True
-    if lab[(centroy+13)//alt - 1][(centrox+15)//larg] == 0 and lab[(centroy+13)//alt - 1][(centrox-15)//larg] == 0 :
-        espacos[2] = True
-    if lab[(centroy-15)//alt][(centrox-10)//larg + 1] == 0 and lab[(centroy+13)//alt][(centrox-10)//larg + 1] == 0 :
+    if centrox // 40 < 29 :
+        if lab[(centroy-num)//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-num)//alt + 1][(centrox-num)//larg] == 0 :
+            espacos[3] = True
+        if lab[(centroy+(num-2))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num-2))//alt - 1][(centrox-num)//larg] == 0 :
+            espacos[2] = True
+        if lab[(centroy-num)//alt][(centrox-(num-5))//larg + 1] == 0 and lab[(centroy+(num-2))//alt][(centrox-(num-5))//larg + 1] == 0 :
+            espacos[0] = True
+        if lab[(centroy-num)//alt][(centrox+(num-5))//larg - 1] == 0 and lab[(centroy+(num-2))//alt][(centrox+(num-5))//larg - 1] == 0 :
+            espacos[1] = True
+    else :
         espacos[0] = True
-    if lab[(centroy-15)//alt][(centrox+10)//larg - 1] == 0 and lab[(centroy+13)//alt][(centrox+10)//larg - 1] == 0 :
         espacos[1] = True
 
     return espacos
