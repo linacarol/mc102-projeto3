@@ -48,7 +48,8 @@ def desenha_labirinto(lab) :
                 if j > 0 :
                     if lab[i][j-1] != 0 :          
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
-
+    
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.6*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
         pygame.draw.rect(tela, 'green', ((60, 800), (0.6*tempo, 30)))
     elif tempo > tempo_inicial/4 :
