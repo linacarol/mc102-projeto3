@@ -17,7 +17,9 @@ nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
 cor_fundo = 'black'
-jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/1.png'), (28, 28))
+jog_frente_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_frente.PNG'), (28, 28))
+jog_lado_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_lado.PNG'), (28, 28))
+jog_tras_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_tras.PNG'), (28, 28))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 
 if nivel == 0 :
@@ -66,13 +68,13 @@ def desenha_labirinto(lab) :
 
 def desenha_jogador() :
     if direcao == 'direita' :
-        tela.blit(jogador_img, (jog_x, jog_y))
+        tela.blit(jog_lado_img, (jog_x, jog_y))
     elif direcao == 'esquerda' :
-        tela.blit(pygame.transform.flip(jogador_img, True, False), (jog_x, jog_y))
+        tela.blit(pygame.transform.flip(jog_lado_img, True, False), (jog_x, jog_y))
     elif direcao == 'cima' :
-        tela.blit(pygame.transform.rotate(jogador_img, 90), (jog_x, jog_y))
+        tela.blit(jog_tras_img, (jog_x, jog_y))
     elif direcao == 'baixo' :
-        tela.blit(pygame.transform.rotate(jogador_img, 270), (jog_x, jog_y))
+        tela.blit(jog_frente_img, (jog_x, jog_y))
 
 def verifica_posicao(centrox, centroy) :
     espacos = [False, False, False, False]
@@ -179,7 +181,7 @@ def informacoes():
         pausar_rect = pausar_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 530))
         voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, 6*ALTURA/7 + 50))
 
-        tela.blit(pygame.transform.scale(jogador_img, (70, 70)), (LARGURA/8 - 30, ALTURA / 6 - 60))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/jogador/jogador_frente.PNG'), (70, 70)), (LARGURA/8 - 30, ALTURA / 6 - 60))
         tela.blit(jogador_txt_linha1, jogador_rect_linha1)
         tela.blit(jogador_txt_linha2, jogador_rect_linha2)
         tela.blit(professor_txt_linha1, professor_rect_linha1)
