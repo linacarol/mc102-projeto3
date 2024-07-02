@@ -18,6 +18,7 @@ lab = labirinto[nivel]
 cor = 'white'
 cor_fundo = 'black'
 jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (35, 35))
+colega_img = pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (35, 35))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 
 if nivel == 0 :
@@ -81,9 +82,9 @@ def verifica_posicao(centrox, centroy) :
     num = 14
 
     if centrox // 40 < 29 :
-        if lab[(centroy-(num+2))//alt + 1][centrox//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox)//larg] == 0 :
+        if lab[(centroy-(num+2))//alt + 1][centrox//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox-4)//larg] == 0 :
             espacos[3] = True
-        if lab[(centroy+(num+14))//alt - 1][centrox//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox)//larg] == 0 :
+        if lab[(centroy+(num+14))//alt - 1][centrox//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox-4)//larg] == 0 :
             espacos[2] = True
         if lab[(centroy-(num-10))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num+4))//alt][(centrox-(num))//larg + 1] == 0 :
             espacos[0] = True
@@ -189,9 +190,11 @@ def informacoes():
         tela.blit(jogador_txt_linha2, jogador_rect_linha2)
         tela.blit(professor_txt_linha1, professor_rect_linha1)
         tela.blit(professor_txt_linha2, professor_rect_linha2)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (70, 70)), (LARGURA/8 - 30, ALTURA /6 + 210))
         tela.blit(colega_txt_linha1, colega_rect_linha1)
         tela.blit(colega_txt_linha2, colega_rect_linha2)
         tela.blit(relogio_txt, relogio_rect)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (70, 70)), (LARGURA/8 - 30, ALTURA/6 + 410))
         tela.blit(coracao_txt, coracao_rect)
         tela.blit(pausar_txt, pausar_rect)
         tela.blit(voltar_txt, voltar_rect)
