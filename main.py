@@ -18,6 +18,7 @@ cor_fundo = 'black'
 jogador_imgs = []
 for i in range(1, 5) :
     jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (28, 28)))
+vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 
 if nivel == 0 :
     posx_inicial = 30
@@ -30,6 +31,7 @@ direcao = 'direita'
 direcao_comando = 'direita'
 cont = 0
 velocidade_jog = 2
+vidas = 3
 
 
 def desenha_labirinto(lab) :
@@ -46,12 +48,20 @@ def desenha_labirinto(lab) :
                 if j > 0 :
                     if lab[i][j-1] != 0 :          
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
+
     if tempo > tempo_inicial/2 :
         pygame.draw.rect(tela, 'green', ((60, 800), (0.6*tempo, 30)))
     elif tempo > tempo_inicial/4 :
         pygame.draw.rect(tela, 'yellow', ((60, 800), (0.6*tempo, 30)))
     else :
         pygame.draw.rect(tela, 'red', ((60, 800), (0.6*tempo, 30)))
+
+    if vidas > 0 :
+        tela.blit(vida_img, (1020, 800))
+    if vidas > 1 :
+        tela.blit(vida_img, (1070, 800))
+    if vidas > 2 :
+        tela.blit(vida_img, (1120, 800))
 
 def desenha_jogador() :
     if direcao == 'direita' :
@@ -202,6 +212,7 @@ def fim_jogo() :
         global jog_y
         global direcao
         global direcao_comando
+        global vidas
 
         tela.fill(cor_fundo)
         fim_txt = fonte.render('Fim de jogo', True, cor)
@@ -225,6 +236,7 @@ def fim_jogo() :
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
+                    vidas = 3
                     tempo = tempo_inicial
                     nivel = 0
                     jog_x = 30
@@ -253,7 +265,7 @@ while rodando :
     pode_andar = verifica_posicao(centro_x, centro_y)
     jog_x, jog_y = move_jogador(jog_x, jog_y)
 
-    if tempo <= 0 :
+    if tempo <= 0 or vidas < 0:
         fim_jogo()
 
     for event in pygame.event.get() :
