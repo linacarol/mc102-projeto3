@@ -149,7 +149,7 @@ def menu_inicial():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if novo_jogo_rect.collidepoint(event.pos):
-                    return
+                    return 'novo_jogo'
                 if informacoes_rect.collidepoint(event.pos):
                     informacoes()
                 if sair_rect.collidepoint(event.pos):
