@@ -85,13 +85,24 @@ def verifica_posicao(centrox, centroy) :
     return espacos
 
 def move_jogador(jog_x, jog_y) :
-    if direcao == 'direita' and pode_andar[0] :
+    global direcao
+    global direcao_comando
+    tecla = pygame.key.get_pressed()
+    if tecla[pygame.K_RIGHT] and pode_andar[0]:
+        direcao = 'direita'
+        direcao_comando = 'direita'
         jog_x += velocidade_jog
-    elif direcao == 'esquerda' and pode_andar[1] :
+    elif tecla[pygame.K_LEFT] and pode_andar[1] :
+        direcao = 'esquerda'
+        direcao_comando = 'esquerda'
         jog_x -= velocidade_jog
-    elif direcao == 'cima' and pode_andar[2] :
+    elif tecla[pygame.K_UP] and pode_andar[2] :
+        direcao = 'cima'
+        direcao_comando = 'cima'
         jog_y -= velocidade_jog
-    elif direcao == 'baixo' and pode_andar[3] :
+    elif tecla[pygame.K_DOWN] and pode_andar[3] :
+        direcao = 'baixo'
+        direcao_comando = 'baixo'
         jog_y += velocidade_jog
     return jog_x, jog_y
 
@@ -249,25 +260,8 @@ while rodando :
         if event.type == pygame.QUIT :
             rodando = False
         if event.type == pygame.KEYDOWN :
-            if event.key == pygame.K_RIGHT :
-                direcao_comando = 'direita'
-            elif event.key == pygame.K_LEFT :
-                direcao_comando = 'esquerda'
-            elif event.key == pygame.K_UP :
-                direcao_comando = 'cima'
-            elif event.key == pygame.K_DOWN :
-                direcao_comando = 'baixo'
-            elif event.key == pygame.K_p:
+            if event.key == pygame.K_p:
                 pause()
-        if event.type == pygame.KEYUP :
-            if event.key == pygame.K_RIGHT and direcao_comando == 'direita' :
-                direcao_comando = direcao
-            elif event.key == pygame.K_LEFT and direcao_comando == 'esquerda' :
-                direcao_comando = direcao
-            elif event.key == pygame.K_UP and direcao_comando == 'cima' :
-                direcao_comando = direcao
-            elif event.key == pygame.K_DOWN and direcao_comando == 'baixo' :
-                direcao_comando = direcao
 
         if direcao_comando == 'direita' and pode_andar[0] :
             direcao = 'direita'
