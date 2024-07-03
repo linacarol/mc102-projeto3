@@ -44,7 +44,6 @@ jog_x = posx_inicial
 jog_y = posy_inicial
 direcao = 'direita'
 direcao_comando = 'direita'
-cont = 0
 velocidade_jog = 2
 vidas = 3
 pegou_relogio = False
@@ -394,10 +393,6 @@ if opcao == 'novo_jogo':
     mostrar_nivel(nivel)
 while rodando :
     timer.tick(FPS)
-    if cont < 19 :
-        cont += 1
-    else :
-        cont = 0
     tempo -= 1
     tela.fill(cor_fundo)
     desenha_labirinto(lab)
