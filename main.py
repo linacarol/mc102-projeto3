@@ -16,14 +16,15 @@ fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 32)
 fonte_titulo = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 38)
 fonte_instrucoes = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 22)
 fonte_pontos = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 18)
-nivel = 0
-lab = labirinto[nivel]
-cor = 'white'
-cor_fundo = 'black'
 jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (35, 35))
 colega_img = pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (35, 35))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (30, 30))
+
+nivel = 0
+lab = labirinto[nivel]
+cor = 'white'
+cor_fundo = 'black'
 
 if nivel == 0 :
     posx_inicial = 30
