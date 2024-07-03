@@ -3,6 +3,7 @@ import pygame
 import sys
 import json
 import os
+import time
 
 pygame.init()
 
@@ -12,10 +13,12 @@ FPS = 30
 
 tela = pygame.display.set_mode([LARGURA, ALTURA])
 timer = pygame.time.Clock()
+
 fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 32)
 fonte_titulo = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 38)
 fonte_instrucoes = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 22)
 fonte_pontos = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 18)
+
 jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (35, 35))
 colega_img = pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (35, 35))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
@@ -36,9 +39,17 @@ if nivel == 0 :
 elif nivel == 1 :
     tempo_inicial = 6000
     ganha_pontos = 10
+    posx_inicial = 30
+    posy_inicial = 30
+    relogiox = LARGURA/2
+    relogioy = ALTURA/2
 elif nivel == 2 :
     tempo_inicial = 5500
     ganha_pontos = 15
+    posx_inicial = LARGURA/2
+    posy_inicial = (ALTURA-50)/2
+    relogiox = 30
+    relogioy = 30
 
 jog_x = posx_inicial
 jog_y = posy_inicial
@@ -48,6 +59,8 @@ velocidade_jog = 2
 vidas = 3
 pegou_relogio = False
 pontuacao = 0
+ultimo_salvamento = time.time()
+intervalo_salvamento = 5
 
 
 def desenha_labirinto(lab) :
@@ -55,7 +68,7 @@ def desenha_labirinto(lab) :
     alt = (ALTURA - 70) // 21
     for i in range(len(lab)) :
         for j in range(len(lab[i])) :
-            if lab[i][j] != 0 :
+            if lab[i][j] == 1 :
                 pygame.draw.rect(tela, cor, (j*larg, i*alt, larg, alt))
                 pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 2)
                 pygame.draw.line(tela, cor_fundo, (j * larg, i * alt), ((j + 1) * larg, i * alt), 2)
@@ -65,13 +78,13 @@ def desenha_labirinto(lab) :
                     if lab[i][j-1] != 0 :          
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
     
-    pygame.draw.rect(tela, 'white', ((30, 800), (0.14*tempo_inicial, 30)))
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.14*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
-        pygame.draw.rect(tela, 'green', ((30, 800), (0.14*tempo, 30)))
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.14*tempo, 30)))
     elif tempo > tempo_inicial/4 :
-        pygame.draw.rect(tela, 'yellow', ((30, 800), (0.14*tempo, 30)))
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.14*tempo, 30)))
     else :
-        pygame.draw.rect(tela, 'red', ((30, 800), (0.14*tempo, 30)))
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.14*tempo, 30)))
 
     if vidas > 0 :
         tela.blit(vida_img, (1050, 800))
@@ -172,7 +185,7 @@ def menu_inicial():
                 if novo_jogo_rect.collidepoint(event.pos):
                     return 'novo_jogo'
                 if carregar_rect.collidepoint(event.pos):
-                    return carregar_jogo()
+                    return 'carregar_jogo'
                 if informacoes_rect.collidepoint(event.pos):
                     informacoes()
                 if sair_rect.collidepoint(event.pos):
@@ -234,19 +247,19 @@ def informacoes():
         pygame.display.flip()
 
 def salvar_jogo():
-    momento_jogo = {
-        'nivel': nivel,
+    dados = {
         'jog_x': jog_x,
         'jog_y': jog_y,
         'tempo': tempo,
         'vidas': vidas,
         'pegou_relogio': pegou_relogio,
-        'direcao': direcao,
-        'direcao_comando': direcao_comando,
+        'nome_jogador': nome_jogador,
+        'nivel': nivel,
         'pontuacao': pontuacao
     }
-    with open('jogo_salvo.json', 'w') as arquivo:
-        json.dump(momento_jogo, arquivo)
+    nome_arquivo = f'save_{nome_jogador}.json'
+    with open(nome_arquivo, 'w') as arquivo:
+        json.dump(dados, arquivo)
 
 def pause():
     while True:
@@ -370,26 +383,88 @@ def colisao_relogio() :
             tempo = tempo_inicial
 
 def carregar_jogo():
-    global nivel, jog_x, jog_y, tempo, vidas, pegou_relogio, direcao, direcao_comando, pontuacao
-    if os.path.exists('jogo_salvo.json'):
-        with open('jogo_salvo.json', 'r') as arquivo:
-            momento_jogo = json.load(arquivo)
-            nivel = momento_jogo['nivel']
-            jog_x = momento_jogo['jog_x']
-            jog_y = momento_jogo['jog_y']
-            tempo = momento_jogo['tempo']
-            vidas = momento_jogo['vidas']
-            pegou_relogio = momento_jogo['pegou_relogio']
-            direcao = momento_jogo['direcao']
-            direcao_comando = momento_jogo['direcao_comando']
-            pontuacao = momento_jogo['pontuacao']
-    else:
-        return 'novo_jogo'
+    salvos = [i for i in os.listdir() if i.startswith('save_') and i.endswith('.json')]
+    if not salvos:
+        return None
+    escolher_jogo = None
+    while escolher_jogo == None:
+        tela.fill(cor_fundo)
+        titulo_carregar_txt = fonte_titulo.render('Selecione um jogo salvo: ', True, cor)
+        tela.blit(titulo_carregar_txt, (LARGURA/2 - titulo_carregar_txt.get_width()/2, 65))
+        
+        salvos_rects = []
+        for i, salvo in enumerate(salvos):
+            nome_salvo = salvo.split('_')[1].replace('.json', '')
+            salvo_txt = fonte.render(f'Carregamento {i+1}: {nome_salvo}', True, cor)
+            salvo_rect = salvo_txt.get_rect(center=(LARGURA/2, 200 + i * 50))
+            tela.blit(salvo_txt, salvo_rect)
+            salvos_rects.append((salvo_rect, salvo))
+
+        voltar_txt = fonte.render('Voltar', True, cor)
+        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 360))
+        tela.blit(voltar_txt, voltar_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for salvo_rect, salvo in salvos_rects:
+                    if salvo_rect.collidepoint(event.pos):
+                        escolher_jogo = salvo
+                        break
+                    if voltar_rect.collidepoint:
+                        menu_inicial()
+
+        pygame.display.flip()
+        timer.tick(FPS)
+
+    if escolher_jogo:
+        with open(escolher_jogo, 'r') as arquivo:
+            dados_salvos = json.load(arquivo)
+        global jog_x, jog_y, nivel, vidas, tempo, lab, pegou_relogio, nome_jogador
+        jog_x = dados_salvos['jog_x']
+        jog_y = dados_salvos['jog_y']
+        nivel = dados_salvos['nivel']
+        vidas = dados_salvos['vidas']
+        tempo = dados_salvos['tempo']
+        pegou_relogio = dados_salvos['pegou_relogio']
+        nome_jogador = dados_salvos['nome_jogador']
+        lab = labirinto[nivel]
+
+def inserir_nome():
+    global nome_jogador
+    nome_jogador = ''
+    input = True
+    while input:
+        tela.fill(cor_fundo)
+        inserir_nome_txt = fonte.render('Digite seu nome:', True, cor)
+        nome_txt = fonte.render(nome_jogador, True, cor)
+        tela.blit(inserir_nome_txt, (LARGURA/2 - inserir_nome_txt.get_width()/2, ALTURA/2 - 100))
+        tela.blit(nome_txt, (LARGURA/2 - nome_txt.get_width()/2, ALTURA/2))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    input = False
+                elif event.key == pygame.K_BACKSPACE:
+                    nome_jogador = nome_jogador[:-1]
+                else:
+                    nome_jogador += event.unicode
+
 
 rodando = True
 tempo = tempo_inicial
 opcao = menu_inicial()
 if opcao == 'novo_jogo':
+    inserir_nome()
+    mostrar_nivel(nivel)
+elif opcao == 'carregar_jogo':
+    carregar_jogo()
     mostrar_nivel(nivel)
 while rodando :
     timer.tick(FPS)
@@ -426,6 +501,10 @@ while rodando :
             jog_x = -30
         elif jog_x < -30 :
             jog_x = 1200
+    
+    if time.time() - ultimo_salvamento > intervalo_salvamento:
+        salvar_jogo()
+        ultimo_salvamento = time.time()
 
     pygame.display.flip()
 pygame.quit()
