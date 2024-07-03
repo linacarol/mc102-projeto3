@@ -32,6 +32,12 @@ if nivel == 0 :
     relogiox = LARGURA/2 - 15
     relogioy = 580
     ganha_pontos = 5
+elif nivel == 1 :
+    tempo_inicial = 6000
+    ganha_pontos = 10
+elif nivel == 2 :
+    tempo_inicial = 5500
+    ganha_pontos = 15
 
 jog_x = posx_inicial
 jog_y = posy_inicial
