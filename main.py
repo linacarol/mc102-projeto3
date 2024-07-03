@@ -20,11 +20,14 @@ cor_fundo = 'black'
 jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (35, 35))
 colega_img = pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (35, 35))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
+relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (30, 30))
 
 if nivel == 0 :
     posx_inicial = 30
     posy_inicial = 395
     tempo_inicial = 6500
+    relogiox = LARGURA/2 - 15
+    relogioy = 580
 
 jog_x = posx_inicial
 jog_y = posy_inicial
@@ -33,6 +36,7 @@ direcao_comando = 'direita'
 cont = 0
 velocidade_jog = 2
 vidas = 3
+pegou_relogio = False
 
 
 def desenha_labirinto(lab) :
@@ -64,6 +68,9 @@ def desenha_labirinto(lab) :
         tela.blit(vida_img, (1070, 800))
     if vidas > 2 :
         tela.blit(vida_img, (1120, 800))
+    
+    if not pegou_relogio :
+        tela.blit(relogio_img, (relogiox, relogioy))
 
 def desenha_jogador() :
     if direcao == 'direita' :
@@ -193,6 +200,7 @@ def informacoes():
         tela.blit(pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (70, 70)), (LARGURA/8 - 20, ALTURA /6 + 210))
         tela.blit(colega_txt_linha1, colega_rect_linha1)
         tela.blit(colega_txt_linha2, colega_rect_linha2)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (70, 70)), (LARGURA/8 - 20, ALTURA/6 + 320))
         tela.blit(relogio_txt, relogio_rect)
         tela.blit(pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (70, 70)), (LARGURA/8 - 20, ALTURA/6 + 410))
         tela.blit(coracao_txt, coracao_rect)
@@ -250,6 +258,7 @@ def fim_jogo() :
         global direcao
         global direcao_comando
         global vidas
+        global pegou_relogio
 
         tela.fill(cor_fundo)
         fim_txt = fonte.render('Fim de jogo', True, cor)
@@ -280,6 +289,7 @@ def fim_jogo() :
                     jog_y = 395
                     direcao = 'direita'
                     direcao_comando = 'direita'
+                    pegou_relogio = False
                     return
 
         pygame.display.flip()
@@ -326,6 +336,17 @@ def mostrar_ranking():
     
         pygame.display.flip()
 
+def colisao_relogio() :
+    global pegou_relogio
+    global tempo
+
+    if centro_x <= relogiox + 30 and centro_x >= relogiox and centro_y <= relogioy + 30 and centro_y >= relogioy :
+        pegou_relogio = True
+        if tempo <= tempo_inicial - 600 :
+            tempo += 600
+        else :
+            tempo = tempo_inicial
+
 rodando = True
 tempo = tempo_inicial
 opcao = menu_inicial()
@@ -345,6 +366,7 @@ while rodando :
     centro_y = jog_y + 15
     pode_andar = verifica_posicao(centro_x, centro_y)
     jog_x, jog_y = move_jogador(jog_x, jog_y)
+    colisao_relogio()
 
     if tempo <= 0 or vidas < 0:
         fim_jogo()
