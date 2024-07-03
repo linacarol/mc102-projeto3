@@ -1,6 +1,8 @@
 from labirintos import labirinto
 import pygame
 import sys
+import json
+import os
 
 pygame.init()
 
@@ -10,20 +12,24 @@ FPS = 30
 
 tela = pygame.display.set_mode([LARGURA, ALTURA])
 timer = pygame.time.Clock()
-fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 30)
+fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 32)
+fonte_titulo = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 38)
+fonte_instrucoes = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 22)
 nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
 cor_fundo = 'black'
-jogador_imgs = []
-for i in range(1, 5) :
-    jogador_imgs.append(pygame.transform.scale(pygame.image.load(f'imgs/jogador/{i}.png'), (28, 28)))
+jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (35, 35))
+colega_img = pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (35, 35))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
+relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (30, 30))
 
 if nivel == 0 :
     posx_inicial = 30
     posy_inicial = 395
-    tempo_inicial = 1300
+    tempo_inicial = 6500
+    relogiox = LARGURA/2 - 15
+    relogioy = 580
 
 jog_x = posx_inicial
 jog_y = posy_inicial
@@ -32,6 +38,7 @@ direcao_comando = 'direita'
 cont = 0
 velocidade_jog = 2
 vidas = 3
+pegou_relogio = False
 
 
 def desenha_labirinto(lab) :
@@ -49,13 +56,13 @@ def desenha_labirinto(lab) :
                     if lab[i][j-1] != 0 :          
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
     
-    pygame.draw.rect(tela, 'white', ((60, 800), (0.6*tempo_inicial, 30)))
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.14*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
-        pygame.draw.rect(tela, 'green', ((60, 800), (0.6*tempo, 30)))
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.14*tempo, 30)))
     elif tempo > tempo_inicial/4 :
-        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.6*tempo, 30)))
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.14*tempo, 30)))
     else :
-        pygame.draw.rect(tela, 'red', ((60, 800), (0.6*tempo, 30)))
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.14*tempo, 30)))
 
     if vidas > 0 :
         tela.blit(vida_img, (1020, 800))
@@ -63,16 +70,19 @@ def desenha_labirinto(lab) :
         tela.blit(vida_img, (1070, 800))
     if vidas > 2 :
         tela.blit(vida_img, (1120, 800))
+    
+    if not pegou_relogio :
+        tela.blit(relogio_img, (relogiox, relogioy))
 
 def desenha_jogador() :
     if direcao == 'direita' :
-        tela.blit(jogador_imgs[cont // 5], (jog_x, jog_y))
+        tela.blit(pygame.transform.flip(jogador_img, True, False), (jog_x, jog_y))
     elif direcao == 'esquerda' :
-        tela.blit(pygame.transform.flip(jogador_imgs[cont // 5], True, False), (jog_x, jog_y))
+        tela.blit(jogador_img, (jog_x, jog_y))
     elif direcao == 'cima' :
-        tela.blit(pygame.transform.rotate(jogador_imgs[cont // 5], 90), (jog_x, jog_y))
+        tela.blit(pygame.transform.flip(jogador_img, True, False), (jog_x, jog_y))
     elif direcao == 'baixo' :
-        tela.blit(pygame.transform.rotate(jogador_imgs[cont // 5], 270), (jog_x, jog_y))
+        tela.blit(jogador_img, (jog_x, jog_y))
 
 def verifica_posicao(centrox, centroy) :
     espacos = [False, False, False, False]
@@ -81,13 +91,13 @@ def verifica_posicao(centrox, centroy) :
     num = 14
 
     if centrox // 40 < 29 :
-        if lab[(centroy-(num+8))//alt + 1][(centrox+num)//larg] == 0 and lab[(centroy-(num+8))//alt + 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy-(num+2))//alt + 1][centrox//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox-4)//larg] == 0 :
             espacos[3] = True
-        if lab[(centroy+(num+4))//alt - 1][(centrox+num)//larg] == 0 and lab[(centroy+(num+4))//alt - 1][(centrox-num)//larg] == 0 :
+        if lab[(centroy+(num+14))//alt - 1][centrox//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox-4)//larg] == 0 :
             espacos[2] = True
-        if lab[(centroy-(num+2))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num-2))//alt][(centrox-(num))//larg + 1] == 0 :
+        if lab[(centroy-(num-10))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num+4))//alt][(centrox-(num))//larg + 1] == 0 :
             espacos[0] = True
-        if lab[(centroy-(num+2))//alt][(centrox+(num-2))//larg - 1] == 0 and lab[(centroy+(num-2))//alt][(centrox+(num-2))//larg - 1] == 0 :
+        if lab[(centroy-(num-10))//alt][(centrox+(num+6))//larg - 1] == 0 and lab[(centroy+(num+4))//alt][(centrox+(num+6))//larg - 1] == 0 :
             espacos[1] = True
     else :
         espacos[0] = True
@@ -120,23 +130,26 @@ def move_jogador(jog_x, jog_y) :
 def menu_inicial():
     while True:
         tela.fill(cor_fundo)
+        titulo_txt = fonte_titulo.render('Os Labirintos da Unicamp', True, 'white')
         novo_jogo_txt = fonte.render('Novo Jogo', True, cor)
         informacoes_txt = fonte.render('Informações', True, cor)
         sair_txt = fonte.render('Sair', True, cor)
         carregar_txt = fonte.render('Carregar Jogo', True, cor)
         ranking_txt = fonte.render('Ranking', True, cor)
 
-        novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 100))
-        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2))
-        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 100))
-        carregar_rect = carregar_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
-        ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+        titulo_rect = titulo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 200))
+        novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 60))
+        carregar_rect = carregar_txt.get_rect(center=(LARGURA/2, ALTURA/2))
+        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2 + 60))
+        ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 120))
+        sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 180))
 
+        tela.blit(titulo_txt, titulo_rect)
         tela.blit(novo_jogo_txt, novo_jogo_rect)
-        tela.blit(informacoes_txt, informacoes_rect)
-        tela.blit(sair_txt, sair_rect)
         tela.blit(carregar_txt, carregar_rect)
+        tela.blit(informacoes_txt, informacoes_rect)
         tela.blit(ranking_txt, ranking_rect)
+        tela.blit(sair_txt, sair_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -145,6 +158,8 @@ def menu_inicial():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if novo_jogo_rect.collidepoint(event.pos):
                     return 'novo_jogo'
+                if carregar_rect.collidepoint(event.pos):
+                    return carregar_jogo()
                 if informacoes_rect.collidepoint(event.pos):
                     informacoes()
                 if sair_rect.collidepoint(event.pos):
@@ -159,13 +174,41 @@ def informacoes():
     while True:
         tela.fill(cor_fundo)
 
-        informacoes_txt = fonte.render('Texto exemplo de informações sobre o jogo', True, cor)
+        jogador_txt_linha1 = fonte_instrucoes.render('Este é você!', True, cor)
+        jogador_txt_linha2 = fonte_instrucoes.render('Utilize as setas do teclado para andar', True, cor)
+        professor_txt_linha1 = fonte_instrucoes.render('Este é um professor!', True, cor)
+        professor_txt_linha2 = fonte_instrucoes.render('Derrote-o respondendo às perguntas', True, cor)
+        colega_txt_linha1 = fonte_instrucoes.render('Este é seu colega!', True, cor)
+        colega_txt_linha2 = fonte_instrucoes.render('Liberte-o com os seus conhecimentos', True, cor)
+        relogio_txt = fonte_instrucoes.render('Colete relógios para ganhar tempo', True, cor)
+        coracao_txt = fonte_instrucoes.render('Não perca todas as suas vidas', True, cor)
+        pausar_txt = fonte_instrucoes.render('Pressione p para pausar o jogo', True, cor)
         voltar_txt = fonte.render('Voltar', True, cor)
 
-        informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
-        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+        jogador_rect_linha1 = jogador_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 - 50))
+        jogador_rect_linha2 = jogador_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 - 10))
+        professor_rect_linha1 = professor_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 100))
+        professor_rect_linha2 = professor_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 140))
+        colega_rect_linha1 = colega_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 220))
+        colega_rect_linha2 = colega_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 260))
+        relogio_rect = relogio_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 350))
+        coracao_rect = coracao_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 440))
+        pausar_rect = pausar_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 530))
+        voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, 6*ALTURA/7 + 50))
 
-        tela.blit(informacoes_txt, informacoes_rect)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (70, 70)), (LARGURA/8 - 20, ALTURA / 6 - 60))
+        tela.blit(jogador_txt_linha1, jogador_rect_linha1)
+        tela.blit(jogador_txt_linha2, jogador_rect_linha2)
+        tela.blit(professor_txt_linha1, professor_rect_linha1)
+        tela.blit(professor_txt_linha2, professor_rect_linha2)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (70, 70)), (LARGURA/8 - 20, ALTURA /6 + 210))
+        tela.blit(colega_txt_linha1, colega_rect_linha1)
+        tela.blit(colega_txt_linha2, colega_rect_linha2)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (70, 70)), (LARGURA/8 - 20, ALTURA/6 + 320))
+        tela.blit(relogio_txt, relogio_rect)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (70, 70)), (LARGURA/8 - 20, ALTURA/6 + 410))
+        tela.blit(coracao_txt, coracao_rect)
+        tela.blit(pausar_txt, pausar_rect)
         tela.blit(voltar_txt, voltar_rect)
 
         for event in pygame.event.get():
@@ -178,7 +221,18 @@ def informacoes():
         pygame.display.flip()
 
 def salvar_jogo():
-    return
+    momento_jogo = {
+        'nivel': nivel,
+        'jog_x': jog_x,
+        'jog_y': jog_y,
+        'tempo': tempo,
+        'vidas': vidas,
+        'pegou_relogio': pegou_relogio,
+        'direcao': direcao,
+        'direcao_comando': direcao_comando
+    }
+    with open('jogo_salvo.json', 'w') as arquivo:
+        json.dump(momento_jogo, arquivo)
 
 def pause():
     while True:
@@ -219,6 +273,7 @@ def fim_jogo() :
         global direcao
         global direcao_comando
         global vidas
+        global pegou_relogio
 
         tela.fill(cor_fundo)
         fim_txt = fonte.render('Fim de jogo', True, cor)
@@ -249,6 +304,7 @@ def fim_jogo() :
                     jog_y = 395
                     direcao = 'direita'
                     direcao_comando = 'direita'
+                    pegou_relogio = False
                     return
 
         pygame.display.flip()
@@ -294,13 +350,40 @@ def mostrar_ranking():
                     return
     
         pygame.display.flip()
-    
+
+def colisao_relogio() :
+    global pegou_relogio
+    global tempo
+
+    if centro_x <= relogiox + 30 and centro_x >= relogiox and centro_y <= relogioy + 30 and centro_y >= relogioy :
+        pegou_relogio = True
+        if tempo <= tempo_inicial - 600 :
+            tempo += 600
+        else :
+            tempo = tempo_inicial
+
+def carregar_jogo():
+    global nivel, jog_x, jog_y, tempo, vidas, pegou_relogio, direcao, direcao_comando
+    if os.path.exists('jogo_salvo.json'):
+        with open('jogo_salvo.json', 'r') as arquivo:
+            momento_jogo = json.load(arquivo)
+            nivel = momento_jogo['nivel']
+            jog_x = momento_jogo['jog_x']
+            jog_y = momento_jogo['jog_y']
+            tempo = momento_jogo['tempo']
+            vidas = momento_jogo['vidas']
+            pegou_relogio = momento_jogo['pegou_relogio']
+            direcao = momento_jogo['direcao']
+            direcao_comando = momento_jogo['direcao_comando']
+    else:
+        return 'novo_jogo'
+
 
 rodando = True
+tempo = tempo_inicial
 opcao = menu_inicial()
 if opcao == 'novo_jogo':
     mostrar_nivel(nivel)
-tempo = tempo_inicial
 while rodando :
     timer.tick(FPS)
     if cont < 19 :
@@ -315,6 +398,7 @@ while rodando :
     centro_y = jog_y + 15
     pode_andar = verifica_posicao(centro_x, centro_y)
     jog_x, jog_y = move_jogador(jog_x, jog_y)
+    colisao_relogio()
 
     if tempo <= 0 or vidas < 0:
         fim_jogo()
