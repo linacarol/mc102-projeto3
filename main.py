@@ -1,6 +1,8 @@
 from labirintos import labirinto
 import pygame
 import sys
+import json
+import os
 
 pygame.init()
 
@@ -13,6 +15,7 @@ timer = pygame.time.Clock()
 fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 32)
 fonte_titulo = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 38)
 fonte_instrucoes = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 22)
+fonte_pontos = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 18)
 nivel = 0
 lab = labirinto[nivel]
 cor = 'white'
@@ -28,6 +31,7 @@ if nivel == 0 :
     tempo_inicial = 6500
     relogiox = LARGURA/2 - 15
     relogioy = 580
+    ganha_pontos = 5
 
 jog_x = posx_inicial
 jog_y = posy_inicial
@@ -37,6 +41,7 @@ cont = 0
 velocidade_jog = 2
 vidas = 3
 pegou_relogio = False
+pontuacao = 0
 
 
 def desenha_labirinto(lab) :
@@ -54,23 +59,27 @@ def desenha_labirinto(lab) :
                     if lab[i][j-1] != 0 :          
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
     
-    pygame.draw.rect(tela, 'white', ((60, 800), (0.14*tempo_inicial, 30)))
+    pygame.draw.rect(tela, 'white', ((30, 800), (0.14*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
-        pygame.draw.rect(tela, 'green', ((60, 800), (0.14*tempo, 30)))
+        pygame.draw.rect(tela, 'green', ((30, 800), (0.14*tempo, 30)))
     elif tempo > tempo_inicial/4 :
-        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.14*tempo, 30)))
+        pygame.draw.rect(tela, 'yellow', ((30, 800), (0.14*tempo, 30)))
     else :
-        pygame.draw.rect(tela, 'red', ((60, 800), (0.14*tempo, 30)))
+        pygame.draw.rect(tela, 'red', ((30, 800), (0.14*tempo, 30)))
 
     if vidas > 0 :
-        tela.blit(vida_img, (1020, 800))
+        tela.blit(vida_img, (1050, 800))
     if vidas > 1 :
-        tela.blit(vida_img, (1070, 800))
+        tela.blit(vida_img, (1090, 800))
     if vidas > 2 :
-        tela.blit(vida_img, (1120, 800))
+        tela.blit(vida_img, (1130, 800))
     
     if not pegou_relogio :
         tela.blit(relogio_img, (relogiox, relogioy))
+    
+    pontos_txt = fonte_pontos.render(f'{pontuacao}', True, 'white')
+    pontos_rect = pontos_txt.get_rect(topright=(1024, 808))
+    tela.blit(pontos_txt, pontos_rect)
 
 def desenha_jogador() :
     if direcao == 'direita' :
@@ -89,9 +98,9 @@ def verifica_posicao(centrox, centroy) :
     num = 14
 
     if centrox // 40 < 29 :
-        if lab[(centroy-(num+2))//alt + 1][centrox//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox-4)//larg] == 0 :
+        if lab[(centroy-(num+2))//alt + 1][(centrox+14)//larg] == 0 and lab[(centroy-(num+2))//alt + 1][(centrox-4)//larg] == 0 :
             espacos[3] = True
-        if lab[(centroy+(num+14))//alt - 1][centrox//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox-4)//larg] == 0 :
+        if lab[(centroy+(num+14))//alt - 1][(centrox+14)//larg] == 0 and lab[(centroy+(num+14))//alt - 1][(centrox-4)//larg] == 0 :
             espacos[2] = True
         if lab[(centroy-(num-10))//alt][(centrox-(num))//larg + 1] == 0 and lab[(centroy+(num+4))//alt][(centrox-(num))//larg + 1] == 0 :
             espacos[0] = True
@@ -156,6 +165,8 @@ def menu_inicial():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if novo_jogo_rect.collidepoint(event.pos):
                     return 'novo_jogo'
+                if carregar_rect.collidepoint(event.pos):
+                    return carregar_jogo()
                 if informacoes_rect.collidepoint(event.pos):
                     informacoes()
                 if sair_rect.collidepoint(event.pos):
@@ -217,7 +228,19 @@ def informacoes():
         pygame.display.flip()
 
 def salvar_jogo():
-    return
+    momento_jogo = {
+        'nivel': nivel,
+        'jog_x': jog_x,
+        'jog_y': jog_y,
+        'tempo': tempo,
+        'vidas': vidas,
+        'pegou_relogio': pegou_relogio,
+        'direcao': direcao,
+        'direcao_comando': direcao_comando,
+        'pontuacao': pontuacao
+    }
+    with open('jogo_salvo.json', 'w') as arquivo:
+        json.dump(momento_jogo, arquivo)
 
 def pause():
     while True:
@@ -251,14 +274,7 @@ def pause():
 
 def fim_jogo() :
     while True :
-        global tempo
-        global nivel
-        global jog_x
-        global jog_y
-        global direcao
-        global direcao_comando
-        global vidas
-        global pegou_relogio
+        global tempo, nivel, jog_x, jog_y, direcao, direcao_comando, vidas, pegou_relogio
 
         tela.fill(cor_fundo)
         fim_txt = fonte.render('Fim de jogo', True, cor)
@@ -346,6 +362,23 @@ def colisao_relogio() :
             tempo += 600
         else :
             tempo = tempo_inicial
+
+def carregar_jogo():
+    global nivel, jog_x, jog_y, tempo, vidas, pegou_relogio, direcao, direcao_comando, pontuacao
+    if os.path.exists('jogo_salvo.json'):
+        with open('jogo_salvo.json', 'r') as arquivo:
+            momento_jogo = json.load(arquivo)
+            nivel = momento_jogo['nivel']
+            jog_x = momento_jogo['jog_x']
+            jog_y = momento_jogo['jog_y']
+            tempo = momento_jogo['tempo']
+            vidas = momento_jogo['vidas']
+            pegou_relogio = momento_jogo['pegou_relogio']
+            direcao = momento_jogo['direcao']
+            direcao_comando = momento_jogo['direcao_comando']
+            pontuacao = momento_jogo['pontuacao']
+    else:
+        return 'novo_jogo'
 
 rodando = True
 tempo = tempo_inicial
