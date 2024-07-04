@@ -4,7 +4,6 @@ import sys
 import json
 import os
 import time
-import random
 
 pygame.init()
 
@@ -503,18 +502,22 @@ def pause():
 
 def fim_jogo() :
     while True :
-        global tempo, nivel, jog_x, jog_y, direcao, direcao_comando, vidas, pegou_relogio
+        global tempo, nivel, lab, jog_x, jog_y, direcao, direcao_comando, vidas, pegou_relogio, pontuacao
+        global prof_x, prof_y, prof_direcao, prof_img, prof_morto, pode_mover, quantos_pegou, python_logos, pegou_python, colega_salvo
 
         tela.fill(cor_fundo)
         fim_txt = fonte.render('Fim de jogo', True, cor)
+        pontuacao_txt = fonte.render(f'Pontuação: {pontuacao}', True, cor)
         novo_jogo_txt = fonte.render('Jogar novamente', True, cor)
         sair_txt = fonte.render('Sair', True, cor)
 
         fim_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 80))
-        novo_jogo_rect = novo_jogo_txt.get_rect(center = (LARGURA/2, ALTURA/2))
-        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 50))
+        pontuacao_rect = fim_txt.get_rect(center = (LARGURA/2 - 30, ALTURA/2))
+        novo_jogo_rect = novo_jogo_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 150))
+        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 200))
 
         tela.blit(fim_txt, fim_rect)
+        tela.blit(pontuacao_txt, pontuacao_rect)
         tela.blit(novo_jogo_txt, novo_jogo_rect)
         tela.blit(sair_txt, sair_rect)
 
@@ -528,13 +531,25 @@ def fim_jogo() :
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
                     nivel = 0
+                    lab = labirinto[nivel]
                     vidas = 3
                     tempo = 6000
                     jog_x = 30
-                    jog_y = 395
+                    jog_y = 365
                     direcao = 'direita'
                     direcao_comando = 'direita'
                     pegou_relogio = False
+                    pontuacao = 0
+                    prof_x = LARGURA//2 + 160
+                    prof_y = ALTURA//2 - 50
+                    prof_direcao = 'direita'
+                    prof_img = ifgw_img
+                    prof_morto = False
+                    pode_mover = True
+                    quantos_pegou = 0
+                    python_logos = [0]*15
+                    pegou_python = [False]*15
+                    colega_salvo = False
                     return
 
         pygame.display.flip()
