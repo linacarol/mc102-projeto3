@@ -28,6 +28,18 @@ vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30
 relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (30, 30))
 python_logo_img = pygame.transform.scale(pygame.image.load('imgs/outros/python_logo.png'), (30, 30))
 
+musica_fundo = pygame.mixer.music.load('sons/musica_fundo.mp3')
+som_perdeu_vida = pygame.mixer.Sound('sons/som_perdeu_vida.ogg')
+som_perdeu = pygame.mixer.Sound('sons/som_perdeu.ogg')
+som_pegou_relogio = pygame.mixer.Sound('sons/som_pegou_relogio.ogg')
+som_pegou_python = pygame.mixer.Sound('sons/som_pegou_python.ogg')
+som_resposta_correta = pygame.mixer.Sound('sons/som_resposta_correta.ogg')
+som_click = pygame.mixer.Sound('sons/som_click.wav')
+som_mostrar_nivel = pygame.mixer.Sound('sons/som_mostrar_nivel.ogg')
+
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.5)
+
 nivel = 0
 cor_fundo = pygame.Color(10, 32, 47)
 cor_titulo = pygame.Color(211, 40, 54)
@@ -416,11 +428,14 @@ def menu_inicial():
                 if carregar_rect.collidepoint(event.pos):
                     return 'carregar_jogo'
                 if informacoes_rect.collidepoint(event.pos):
+                    som_click.play()
                     informacoes()
                 if sair_rect.collidepoint(event.pos):
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if ranking_rect.collidepoint(event.pos):
+                    som_click.play()
                     mostrar_ranking()
         
         pygame.display.flip()
@@ -476,6 +491,7 @@ def informacoes():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if voltar_rect.collidepoint(event.pos):
+                    som_click.play()
                     return
         pygame.display.flip()
 
@@ -525,11 +541,14 @@ def pause():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if sair_rect.collidepoint(event.pos):
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if voltar_rect.collidepoint(event.pos):
+                    som_click.play()
                     return
                 if salvar_rect.collidepoint(event.pos):
+                    som_click.play()
                     salvar_jogo()
                     return
         pygame.display.flip()
@@ -571,9 +590,11 @@ def perdeu_jogo() :
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN :
                 if sair_rect.collidepoint(event.pos) :
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
+                    som_click.play()
                     inserir_nome()
                     dificuldades()
                     if dificuldade == 0 :
@@ -651,9 +672,11 @@ def ganhou_jogo() :
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN :
                 if sair_rect.collidepoint(event.pos) :
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
+                    som_click.play()
                     inserir_nome()
                     dificuldades()
                     if dificuldade == 0 :
@@ -710,6 +733,8 @@ def mostrar_nivel(nivel):
     local_rect = local_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
     tela.blit(nivel_txt, nivel_rect)
     tela.blit(local_txt, local_rect)
+
+    som_mostrar_nivel.play()
     pygame.display.flip()
     pygame.time.delay(2000)
 
@@ -740,6 +765,7 @@ def mostrar_ranking():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if voltar_rect.collidepoint:
+                    som_click.play()
                     return
     
         pygame.display.flip()
@@ -755,24 +781,28 @@ def colisao_relogio() :
     if centro_x // 40 < 29 :
         if lab[(centro_y-(num+2))//alt + 1][(centro_x+14)//larg] == 2 and lab[(centro_y-(num+2))//alt + 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y+(num+14))//alt - 1][(centro_x+14)//larg] == 2 and lab[(centro_y+(num+14))//alt - 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y-(num-10))//alt][(centro_x-(num))//larg + 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x-(num))//larg + 1] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y-(num-10))//alt][(centro_x+(num+6))//larg - 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x+(num+6))//larg - 1] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
@@ -807,9 +837,11 @@ def carregar_jogo():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for salvo_rect, salvo in salvos_rects:
                     if salvo_rect.collidepoint(event.pos):
+                        som_click.play()
                         escolher_jogo = salvo
                         break
                     if voltar_rect.collidepoint:
+                        som_click.play()
                         menu_inicial()
 
         pygame.display.flip()
@@ -912,24 +944,30 @@ def colisao_prof() :
                     if nivel == 0 :
                         if alt_c_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1   
                         elif alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     elif nivel == 1 :
                         if alt_a_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1  
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida()
                     elif nivel == 2 :
                         if alt_b_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1 
                         elif alt_a_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                         prof_morto = True
                         pode_mover = True
@@ -945,6 +983,7 @@ def colisao_python():
         python_rect = pygame.Rect(pos_python[0], pos_python[1], 30, 30)
         if jogador_rect.colliderect(python_rect) and pegou_python[cont_python] == False :
             pegou_python[cont_python] = True
+            som_pegou_python.play()
             pontuacao += ganha_pontos
             quantos_pegou += 1
         cont_python += 1
@@ -991,24 +1030,30 @@ def colisao_colega() :
                     if nivel == 0 :
                         if alt_b_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1  
                         elif alt_a_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     elif nivel == 1 :
                         if alt_a_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1 
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     elif nivel == 2 :
                         if alt_a_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1                 
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                         colega_salvo = True
                         pode_mover = True
@@ -1039,12 +1084,15 @@ def dificuldades() :
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if facil_rect.collidepoint(event.pos):
+                    som_click.play()
                     dificuldade = 0
                     return
                 if medio_rect.collidepoint(event.pos):
+                    som_click.play()
                     dificuldade = 1
                     return
                 if dificil_rect.collidepoint(event.pos):
+                    som_click.play()
                     dificuldade = 2
                     return
         
@@ -1073,10 +1121,12 @@ def salvar_ranking(ranking):
 rodando = True
 opcao = menu_inicial()
 if opcao == 'novo_jogo':
+    som_click.play()
     inserir_nome()
     dificuldades()
     mostrar_nivel(nivel)
 elif opcao == 'carregar_jogo':
+    som_click.play()
     carregar_jogo()
     dificuldades()
     mostrar_nivel(nivel)
@@ -1118,6 +1168,7 @@ while rodando :
     colisao_colega()
 
     if tempo <= 0 or vidas < 0:
+        som_perdeu.play()
         perdeu_jogo()
     
     if prof_morto and quantos_pegou == 15 and colega_salvo :
