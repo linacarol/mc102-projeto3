@@ -28,7 +28,6 @@ vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30
 relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (30, 30))
 
 nivel = 0
-lab = labirinto[nivel]
 cor = 'white'
 cor_fundo = 'black'
 
@@ -38,23 +37,9 @@ if nivel == 0 :
     tempo_inicial = 6500
     ganha_pontos = 5
     professor_img = ifgw_img
-    prof_x = LARGURA//2 + 160
-    prof_y = ALTURA//2 - 64
+    profx_inicial = LARGURA//2 + 160
+    profy_inicial = ALTURA//2 - 64
     prof_direcao = 'direita'
-    prof_morto = False
-elif nivel == 1 :
-    tempo_inicial = 6000
-    ganha_pontos = 10
-    posx_inicial = 30
-    posy_inicial = 30
-    professor_img = imecc_img
-    prof_morto = False
-elif nivel == 2 :
-    tempo_inicial = 5500
-    ganha_pontos = 15
-    posx_inicial = LARGURA/2
-    posy_inicial = (ALTURA-50)/2
-    professor_img = santiago_img
     prof_morto = False
 
 jog_x = posx_inicial
@@ -67,7 +52,11 @@ pegou_relogio = False
 pontuacao = 0
 ultimo_salvamento = time.time()
 intervalo_salvamento = 5
+prof_x = profx_inicial
+prof_y = profy_inicial
+prof_img = professor_img
 velocidade_prof = 2
+pode_mover = True
 
 class Professor :
     def __init__(self, coord_x, coord_y, alvo, velocidade, img, direc, morte) :
@@ -111,139 +100,140 @@ class Professor :
         return self.movimentos
     
     def anda(self) :
-        if self.direcao == 'direita' :
-            if self.alvo[0] > self.pos_x and self.movimentos[0] :
-                self.pos_x += self.velocidade
-            elif not self.movimentos[0] :
-                if self.alvo[1] > self.pos_y and self.movimentos[3] :
-                    self.direcao = 'baixo'
-                    self.pos_y += self.velocidade
-                elif self.alvo[1] < self.pos_y and self.movimentos[2] :
-                    self.direcao = 'cima'
-                    self.pos_y -= self.velocidade
-                elif self.alvo[0] < self.pos_x and self.movimentos[1] :
-                    self._direcao = 'esquerda'
-                    self.pos_x -= self.velocidade
-                elif self.movimentos[3] :
-                    self.direcao = 'baixo'
-                    self.pos_y += self.velocidade
-                elif self.movimentos[2] :
-                    self.direcao = 'cima'
-                    self.pos_y -= self.velocidade
-                elif self.movimentos[1] :
-                    self.direcao = 'esquerda'
-                    self.pos_x -= self.velocidade
-            elif self.movimentos[0] :
-                if self.alvo[1] > self.pos_y and self.movimentos[3] :
-                    self.direcao = 'baixo'
-                    self.pos_y += self.velocidade
-                elif self.alvo[1] < self.pos_y and self.movimentos[2] :
-                    self.direcao = 'cima'
-                    self.pos_y -= self.velocidade
-                else :
+        if pode_mover :
+            if self.direcao == 'direita' :
+                if self.alvo[0] > self.pos_x and self.movimentos[0] :
                     self.pos_x += self.velocidade
-
-        elif self.direcao == 'esquerda' :
-            if self.alvo[1] > self.pos_y and self.movimentos[3] :
-                self.direcao = 'baixo'
-                self.pos_y += self.velocidade
-            elif self.alvo[0] < self.pos_x and self.movimentos[1] :
-                self.pos_x -= self.velocidade
-            elif not self.movimentos[1] :
-                if self.alvo[1] > self.pos_y and self.movimentos[3] :
-                    self.direcao = 'baixo'
-                    self.pos_y += self.velocidade
-                elif self.alvo[1] < self.pos_y and self.movimentos[2] :
-                    self.direcao = 'cima'
-                    self.pos_y -= self.velocidade
-                elif self.alvo[0] > self.pos_x and self.movimentos[0] :
-                    self._direcao = 'direita'
-                    self.pos_x += self.velocidade
-                elif self.movimentos[3] :
-                    self.direcao = 'baixo'
-                    self.pos_y += self.velocidade
-                elif self.movimentos[2] :
-                    self.direcao = 'cima'
-                    self.pos_y -= self.velocidade
+                elif not self.movimentos[0] :
+                    if self.alvo[1] > self.pos_y and self.movimentos[3] :
+                        self.direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.alvo[1] < self.pos_y and self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    elif self.alvo[0] < self.pos_x and self.movimentos[1] :
+                        self._direcao = 'esquerda'
+                        self.pos_x -= self.velocidade
+                    elif self.movimentos[3] :
+                        self.direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    elif self.movimentos[1] :
+                        self.direcao = 'esquerda'
+                        self.pos_x -= self.velocidade
                 elif self.movimentos[0] :
-                    self.direcao = 'direita'
-                    self.pos_x += self.velocidade
-            elif self.movimentos[1] :
+                    if self.alvo[1] > self.pos_y and self.movimentos[3] :
+                        self.direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.alvo[1] < self.pos_y and self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    else :
+                        self.pos_x += self.velocidade
+
+            elif self.direcao == 'esquerda' :
                 if self.alvo[1] > self.pos_y and self.movimentos[3] :
                     self.direcao = 'baixo'
                     self.pos_y += self.velocidade
-                elif self.alvo[1] < self.pos_y and self.movimentos[2] :
-                    self.direcao = 'cima'
-                    self.pos_y -= self.velocidade
-                else :
-                    self.pos_x -= self.velocidade
-
-        elif self.direcao == 'cima' :
-            if self.alvo[0] < self.pos_x and self.movimentos[1] :
-                self.direcao = 'esquerda'
-                self.pos_x -= self.velocidade
-            elif self.alvo[1] < self.pos_y and self.movimentos[2] :
-                self.pos_y -= self.velocidade
-            elif not self.movimentos[2] :
-                if self.alvo[0] > self.pos_x and self.movimentos[0] :
-                    self.direcao = 'direita'
-                    self.pos_x += self.velocidade
                 elif self.alvo[0] < self.pos_x and self.movimentos[1] :
-                    self.direcao = 'esquerda'
-                    self.pos_x += self.velocidade
-                elif self.alvo[1] > self.pos_y and self.movimentos[3] :
-                    self._direcao = 'baixo'
-                    self.pos_y += self.velocidade
-                elif self.movimentos[3] :
-                    self.direcao = 'baixo'
-                    self.pos_y += self.velocidade
+                    self.pos_x -= self.velocidade
+                elif not self.movimentos[1] :
+                    if self.alvo[1] > self.pos_y and self.movimentos[3] :
+                        self.direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.alvo[1] < self.pos_y and self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    elif self.alvo[0] > self.pos_x and self.movimentos[0] :
+                        self._direcao = 'direita'
+                        self.pos_x += self.velocidade
+                    elif self.movimentos[3] :
+                        self.direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    elif self.movimentos[0] :
+                        self.direcao = 'direita'
+                        self.pos_x += self.velocidade
                 elif self.movimentos[1] :
-                    self.direcao = 'esquerda'
-                    self.pos_x -= self.velocidade
-                elif self.movimentos[0] :
-                    self.direcao = 'direita'
-                    self.pos_x += self.velocidade
-            elif self.movimentos[2] :
-                if self.alvo[0] > self.pos_x and self.movimentos[0] :
-                    self.direcao = 'direita'
-                    self.pos_x += self.velocidade
-                elif self.alvo[0] < self.pos_x and self.movimentos[1] :
-                    self.direcao = 'esquerda'
-                    self.pos_y -= self.velocidade
-                else :
-                    self.pos_y -= self.velocidade
+                    if self.alvo[1] > self.pos_y and self.movimentos[3] :
+                        self.direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.alvo[1] < self.pos_y and self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    else :
+                        self.pos_x -= self.velocidade
 
-        elif self.direcao == 'baixo' :
-            if self.alvo[1] > self.pos_y and self.movimentos[3] :
-                self.pos_y += self.velocidade
-            elif not self.movimentos[3] :
-                if self.alvo[0] > self.pos_x and self.movimentos[0] :
-                    self.direcao = 'direita'
-                    self.pos_x += self.velocidade
-                elif self.alvo[0] < self.pos_x and self.movimentos[1] :
+            elif self.direcao == 'cima' :
+                if self.alvo[0] < self.pos_x and self.movimentos[1] :
                     self.direcao = 'esquerda'
                     self.pos_x -= self.velocidade
                 elif self.alvo[1] < self.pos_y and self.movimentos[2] :
-                    self.direcao = 'cima'
                     self.pos_y -= self.velocidade
+                elif not self.movimentos[2] :
+                    if self.alvo[0] > self.pos_x and self.movimentos[0] :
+                        self.direcao = 'direita'
+                        self.pos_x += self.velocidade
+                    elif self.alvo[0] < self.pos_x and self.movimentos[1] :
+                        self.direcao = 'esquerda'
+                        self.pos_x += self.velocidade
+                    elif self.alvo[1] > self.pos_y and self.movimentos[3] :
+                        self._direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.movimentos[3] :
+                        self.direcao = 'baixo'
+                        self.pos_y += self.velocidade
+                    elif self.movimentos[1] :
+                        self.direcao = 'esquerda'
+                        self.pos_x -= self.velocidade
+                    elif self.movimentos[0] :
+                        self.direcao = 'direita'
+                        self.pos_x += self.velocidade
                 elif self.movimentos[2] :
-                    self.direcao = 'cima'
-                    self.pos_y -= self.velocidade
-                elif self.movimentos[1] :
-                    self.direcao = 'esquerda'
-                    self.pos_x -= self.velocidade
-                elif self.movimentos[0] :
-                    self.direcao = 'direita'
-                    self.pos_x += self.velocidade
-            elif self.movimentos[3] :
-                if self.alvo[0] > self.pos_x and self.movimentos[0] :
-                    self.direcao = 'direita'
-                    self.pos_x += self.velocidade
-                elif self.alvo[0] < self.pos_x and self.movimentos[1] :
-                    self.direcao = 'esquerda'
-                    self.pos_x -= self.velocidade
-                else :
+                    if self.alvo[0] > self.pos_x and self.movimentos[0] :
+                        self.direcao = 'direita'
+                        self.pos_x += self.velocidade
+                    elif self.alvo[0] < self.pos_x and self.movimentos[1] :
+                        self.direcao = 'esquerda'
+                        self.pos_y -= self.velocidade
+                    else :
+                        self.pos_y -= self.velocidade
+
+            elif self.direcao == 'baixo' :
+                if self.alvo[1] > self.pos_y and self.movimentos[3] :
                     self.pos_y += self.velocidade
+                elif not self.movimentos[3] :
+                    if self.alvo[0] > self.pos_x and self.movimentos[0] :
+                        self.direcao = 'direita'
+                        self.pos_x += self.velocidade
+                    elif self.alvo[0] < self.pos_x and self.movimentos[1] :
+                        self.direcao = 'esquerda'
+                        self.pos_x -= self.velocidade
+                    elif self.alvo[1] < self.pos_y and self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    elif self.movimentos[2] :
+                        self.direcao = 'cima'
+                        self.pos_y -= self.velocidade
+                    elif self.movimentos[1] :
+                        self.direcao = 'esquerda'
+                        self.pos_x -= self.velocidade
+                    elif self.movimentos[0] :
+                        self.direcao = 'direita'
+                        self.pos_x += self.velocidade
+                elif self.movimentos[3] :
+                    if self.alvo[0] > self.pos_x and self.movimentos[0] :
+                        self.direcao = 'direita'
+                        self.pos_x += self.velocidade
+                    elif self.alvo[0] < self.pos_x and self.movimentos[1] :
+                        self.direcao = 'esquerda'
+                        self.pos_x -= self.velocidade
+                    else :
+                        self.pos_y += self.velocidade
         
         if self.pos_x < 35 :
             self.pos_x = LARGURA
@@ -570,30 +560,31 @@ def colisao_relogio() :
     alt = (ALTURA - 70) // 21
     num = 14
 
-    if lab[(centro_y-(num+2))//alt + 1][(centro_x+14)//larg] == 2 and lab[(centro_y-(num+2))//alt + 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
-        pegou_relogio = True
-        if tempo + 500 <= tempo_inicial :
-            tempo += 500
-        else :
-            tempo = tempo_inicial
-    if lab[(centro_y+(num+14))//alt - 1][(centro_x+14)//larg] == 2 and lab[(centro_y+(num+14))//alt - 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
-        pegou_relogio = True
-        if tempo + 500 <= tempo_inicial :
-            tempo += 500
-        else :
-            tempo = tempo_inicial
-    if lab[(centro_y-(num-10))//alt][(centro_x-(num))//larg + 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x-(num))//larg + 1] == 2 and not pegou_relogio :
-        pegou_relogio = True
-        if tempo + 500 <= tempo_inicial :
-            tempo += 500
-        else :
-            tempo = tempo_inicial
-    if lab[(centro_y-(num-10))//alt][(centro_x+(num+6))//larg - 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x+(num+6))//larg - 1] == 2 and not pegou_relogio :
-        pegou_relogio = True
-        if tempo + 500 <= tempo_inicial :
-            tempo += 500
-        else :
-            tempo = tempo_inicial
+    if centro_x // 40 < 29 :
+        if lab[(centro_y-(num+2))//alt + 1][(centro_x+14)//larg] == 2 and lab[(centro_y-(num+2))//alt + 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
+            pegou_relogio = True
+            if tempo + 500 <= tempo_inicial :
+                tempo += 500
+            else :
+                tempo = tempo_inicial
+        if lab[(centro_y+(num+14))//alt - 1][(centro_x+14)//larg] == 2 and lab[(centro_y+(num+14))//alt - 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
+            pegou_relogio = True
+            if tempo + 500 <= tempo_inicial :
+                tempo += 500
+            else :
+                tempo = tempo_inicial
+        if lab[(centro_y-(num-10))//alt][(centro_x-(num))//larg + 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x-(num))//larg + 1] == 2 and not pegou_relogio :
+            pegou_relogio = True
+            if tempo + 500 <= tempo_inicial :
+                tempo += 500
+            else :
+                tempo = tempo_inicial
+        if lab[(centro_y-(num-10))//alt][(centro_x+(num+6))//larg - 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x+(num+6))//larg - 1] == 2 and not pegou_relogio :
+            pegou_relogio = True
+            if tempo + 500 <= tempo_inicial :
+                tempo += 500
+            else :
+                tempo = tempo_inicial
 
 def carregar_jogo():
     salvos = [i for i in os.listdir() if i.startswith('save_') and i.endswith('.json')]
@@ -669,6 +660,68 @@ def inserir_nome():
                 else:
                     nome_jogador += event.unicode
 
+def colisao_prof() :
+    global pode_mover, prof_morto, pontuacao, vidas
+
+    if not prof_morto and centro_x // 40 < 29 :
+        if centro_x >= prof_x and centro_x <= prof_x + 30 and centro_y >= prof_y and centro_y <= prof_y + 30 :
+            pode_mover = False
+            if nivel == 0 :
+                tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_ifgw.png'), (800, 800)), (LARGURA/2, -28))
+            elif nivel == 1 :
+                tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_imecc.png'), (800, 800)), (LARGURA/2, -28))
+            elif nivel == 2 :
+                tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_santiago.png'), (800, 800)), (LARGURA/2, -28))
+            pygame.draw.rect(tela, 'blue', (10, ALTURA//2, LARGURA-20, 300))
+            if nivel == 0 :
+                pergunta_txt = fonte_instrucoes.render('Qual foi um objeto de estudo da física após 1920?', True, cor)
+                alt_a_txt = fonte.render('Mecânica', True, cor)
+                alt_b_txt = fonte.render('Gravitação', True, cor)
+                alt_c_txt = fonte.render('Relatividade', True, cor)
+            elif nivel == 1 :
+                pergunta_txt = fonte_instrucoes.render('Qual das opções é uma quádrica?', True, cor)
+                alt_a_txt = fonte.render('Elipsóide', True, cor)
+                alt_b_txt = fonte.render('Hipérbole', True, cor)
+                alt_c_txt = fonte.render('Parábola', True, cor)
+            elif nivel == 2 :
+                pergunta_txt = fonte_instrucoes.render('Qual é a função do processador central?', True, cor)
+                alt_a_txt = fonte.render('Receber informações', True, cor)
+                alt_b_txt = fonte.render('Coordenar o funcionamento do computador', True, cor)
+                alt_c_txt = fonte.render('Guardar dados', True, cor)
+
+            pergunta_rect = pergunta_txt.get_rect(topleft=(28, ALTURA//2 + 18))
+            alt_a_rect = alt_a_txt.get_rect(topleft=(28, ALTURA//2 + 100))
+            alt_b_rect = alt_b_txt.get_rect(topleft=(28, ALTURA//2 + 170))
+            alt_c_rect = alt_c_txt.get_rect(topleft=(28, ALTURA//2 + 240))
+
+            tela.blit(pergunta_txt, pergunta_rect)
+            tela.blit(alt_a_txt, alt_a_rect)
+            tela.blit(alt_b_txt, alt_b_rect)
+            tela.blit(alt_c_txt, alt_c_rect)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if nivel == 0 :
+                        if alt_c_rect.collidepoint(event.pos) :
+                            pontuacao += ganha_pontos
+                        elif alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) :
+                            vidas -= 1
+                    elif nivel == 1 :
+                        if alt_a_rect.collidepoint(event.pos) :
+                            pontuacao += ganha_pontos
+                        elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
+                            vidas -= 1
+                    elif nivel == 2 :
+                        if alt_b_rect.collidepoint(event.pos) :
+                            pontuacao += ganha_pontos
+                        elif alt_a_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
+                            vidas -= 1
+                    if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
+                        prof_morto = True
+                        pode_mover = True
 
 rodando = True
 tempo = tempo_inicial
@@ -681,30 +734,57 @@ elif opcao == 'carregar_jogo':
     mostrar_nivel(nivel)
 while rodando :
     timer.tick(FPS)
+    lab = labirinto[nivel]
     tempo -= 1
     tela.fill(cor_fundo)
     desenha_labirinto(lab)
     alvo = (jog_x, jog_y)
-    if nivel == 0 :
-        natalia = Professor(prof_x, prof_y, alvo, velocidade_prof, professor_img,
-                            prof_direcao, prof_morto)
-        if not prof_morto :
-            prof_x, prof_y, prof_direcao = natalia.anda()
-    if nivel == 1 :
-        osmar = Professor(prof_x, prof_y, alvo, velocidade_prof, professor_img,
-                            prof_direcao, prof_morto)
-    if nivel == 2 :
-        santiago = Professor(prof_x, prof_y, alvo, velocidade_prof, professor_img,
-                            prof_direcao, prof_morto)
+    professor = Professor(prof_x, prof_y, alvo, velocidade_prof, prof_img,
+                        prof_direcao, prof_morto)
+    if not prof_morto :
+        prof_x, prof_y, prof_direcao = professor.anda()
     desenha_jogador()
     centro_x = jog_x + 15
     centro_y = jog_y + 15
     pode_andar = verifica_posicao(centro_x, centro_y)
-    jog_x, jog_y = move_jogador(jog_x, jog_y)
+    if pode_mover :
+        jog_x, jog_y = move_jogador(jog_x, jog_y)
     colisao_relogio()
+    colisao_prof()
 
     if tempo <= 0 or vidas < 0:
         fim_jogo()
+    
+    if prof_morto :
+        nivel += 1
+        if nivel == 1 :
+            tempo_inicial = 6000
+            ganha_pontos = 10
+            posx_inicial = 30
+            posy_inicial = 30
+            professor_img = imecc_img
+            prof_morto = False
+        elif nivel == 2 :
+            tempo_inicial = 5500
+            ganha_pontos = 15
+            posx_inicial = LARGURA//2
+            posy_inicial = (ALTURA-50)//2
+            professor_img = santiago_img
+            prof_morto = False
+        elif nivel == 3 :
+            fim_jogo()
+        tempo = tempo_inicial
+        pegou_relogio = False
+        jog_x = posx_inicial
+        jog_y = posy_inicial
+        direcao = 'direita'
+        direcao_comando = 'direita'
+        prof_x = profx_inicial
+        prof_y = profy_inicial
+        prof_direcao = 'direita'
+        prof_img = professor_img
+        prof_morto = False
+        pode_mover = True
 
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
