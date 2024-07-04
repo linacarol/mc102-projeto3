@@ -1095,8 +1095,8 @@ while rodando :
     colisao_colega()
 
     if tempo <= 0 or vidas < 0:
-        perdeu_jogo()
         som_perdeu.play()
+        perdeu_jogo()
     
     if prof_morto and quantos_pegou == 15 and colega_salvo :
         nivel += 1
