@@ -36,7 +36,7 @@ cor_fundo = 'black'
 if nivel == 0 :
     posx_inicial = 30
     posy_inicial = 365
-    tempo_inicial = 6500
+    tempo_inicial = 6000
     ganha_pontos = 5
     professor_img = ifgw_img
     profx_inicial = LARGURA//2 + 160
@@ -45,6 +45,7 @@ if nivel == 0 :
     prof_morto = False
     pegou_python = [False]*15
     quantos_pegou = 0
+    colega_salvo = False
 
 jog_x = posx_inicial
 jog_y = posy_inicial
@@ -249,7 +250,7 @@ class Professor :
         return self.pos_x, self.pos_y, self.direcao
 
 def desenha_labirinto(lab) :
-    global python_logos
+    global python_logos, colega_x, colega_y
 
     larg = LARGURA // 40
     alt = (ALTURA - 70) // 21
@@ -273,14 +274,18 @@ def desenha_labirinto(lab) :
                     python_logos[cont_python] = (j * larg, i * alt)
                     tela.blit(python_logo_img, python_logos[cont_python])
                 cont_python += 1
+            elif lab[i][j] == 4 and not colega_salvo :
+                colega_x = j*larg
+                colega_y = i*alt
+                tela.blit(colega_img, (j*larg, i*alt))
     
-    pygame.draw.rect(tela, 'white', ((60, 800), (0.12*tempo_inicial, 30)))
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.14*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
-        pygame.draw.rect(tela, 'green', ((60, 800), (0.12*tempo, 30)))
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.14*tempo, 30)))
     elif tempo > tempo_inicial/4 :
-        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.12*tempo, 30)))
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.14*tempo, 30)))
     else :
-        pygame.draw.rect(tela, 'red', ((60, 800), (0.12*tempo, 30)))
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.14*tempo, 30)))
 
     if vidas > 0 :
         tela.blit(vida_img, (1050, 800))
@@ -451,7 +456,15 @@ def salvar_jogo():
         'pegou_relogio': pegou_relogio,
         'nome_jogador': nome_jogador,
         'nivel': nivel,
-        'pontuacao': pontuacao
+        'pontuacao': pontuacao,
+        'prof_x': prof_x,
+        'prof_y': prof_y,
+        'prof_morto': prof_morto,
+        'colega_salvo': colega_salvo,
+        'python_logos': python_logos,
+        'pegou_python': pegou_python,
+        'quantos_pegou': quantos_pegou,
+        'pode_mover': pode_mover
     }
     nome_arquivo = f'save_{nome_jogador}.json'
     with open(nome_arquivo, 'w') as arquivo:
@@ -514,9 +527,9 @@ def fim_jogo() :
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
-                    vidas = 3
-                    tempo = tempo_inicial
                     nivel = 0
+                    vidas = 3
+                    tempo = 6000
                     jog_x = 30
                     jog_y = 395
                     direcao = 'direita'
@@ -579,26 +592,26 @@ def colisao_relogio() :
     if centro_x // 40 < 29 :
         if lab[(centro_y-(num+2))//alt + 1][(centro_x+14)//larg] == 2 and lab[(centro_y-(num+2))//alt + 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
             pegou_relogio = True
-            if tempo + 500 <= tempo_inicial :
-                tempo += 500
+            if tempo + 1000 <= tempo_inicial :
+                tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y+(num+14))//alt - 1][(centro_x+14)//larg] == 2 and lab[(centro_y+(num+14))//alt - 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
             pegou_relogio = True
-            if tempo + 500 <= tempo_inicial :
-                tempo += 500
+            if tempo + 1000 <= tempo_inicial :
+                tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y-(num-10))//alt][(centro_x-(num))//larg + 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x-(num))//larg + 1] == 2 and not pegou_relogio :
             pegou_relogio = True
-            if tempo + 500 <= tempo_inicial :
-                tempo += 500
+            if tempo + 1000 <= tempo_inicial :
+                tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y-(num-10))//alt][(centro_x+(num+6))//larg - 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x+(num+6))//larg - 1] == 2 and not pegou_relogio :
             pegou_relogio = True
-            if tempo + 500 <= tempo_inicial :
-                tempo += 500
+            if tempo + 1000 <= tempo_inicial :
+                tempo += 1000
             else :
                 tempo = tempo_inicial
 
@@ -642,7 +655,9 @@ def carregar_jogo():
     if escolher_jogo:
         with open(escolher_jogo, 'r') as arquivo:
             dados_salvos = json.load(arquivo)
-        global jog_x, jog_y, nivel, vidas, tempo, lab, pegou_relogio, nome_jogador, pontuacao
+        global jog_x, jog_y, nivel, vidas, tempo, lab, pegou_relogio, nome_jogador, pontuacao, prof_x, prof_y, prof_img, prof_direcao, prof_morto
+        global colega_salvo, python_logos, pegou_python, quantos_pegou, pode_mover
+
         jog_x = dados_salvos['jog_x']
         jog_y = dados_salvos['jog_y']
         nivel = dados_salvos['nivel']
@@ -651,6 +666,15 @@ def carregar_jogo():
         pegou_relogio = dados_salvos['pegou_relogio']
         nome_jogador = dados_salvos['nome_jogador']
         pontuacao = dados_salvos['pontuacao']
+        prof_x = dados_salvos['prof_x']
+        prof_y = dados_salvos['prof_y']
+        prof_morto = dados_salvos['prof_morto']
+        colega_salvo = dados_salvos['colega_salvo']
+        python_logos = dados_salvos['python_logos']
+        pegou_python = dados_salvos['pegou_python']
+        quantos_pegou = dados_salvos['quantos_pegou']
+        pode_mover = dados_salvos['pode_mover']
+
         lab = labirinto[nivel]
 
 def inserir_nome():
@@ -701,10 +725,10 @@ def colisao_prof() :
                 alt_b_txt = fonte.render('Hipérbole', True, cor)
                 alt_c_txt = fonte.render('Parábola', True, cor)
             elif nivel == 2 :
-                pergunta_txt = fonte_instrucoes.render('Qual é a função do processador central?', True, cor)
-                alt_a_txt = fonte.render('Receber informações', True, cor)
-                alt_b_txt = fonte.render('Coordenar o funcionamento do computador', True, cor)
-                alt_c_txt = fonte.render('Guardar dados', True, cor)
+                pergunta_txt = fonte_instrucoes.render('O que as bibliotecas em python fazem?', True, cor)
+                alt_a_txt = fonte.render('Guardam livros', True, cor)
+                alt_b_txt = fonte.render('Compartilham códigos já escritos', True, cor)
+                alt_c_txt = fonte.render('Escrevem códigos novos', True, cor)
 
             pergunta_rect = pergunta_txt.get_rect(topleft=(28, ALTURA//2 + 18))
             alt_a_rect = alt_a_txt.get_rect(topleft=(28, ALTURA//2 + 100))
@@ -724,16 +748,22 @@ def colisao_prof() :
                     if nivel == 0 :
                         if alt_c_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            if vidas < 3 :
+                                vidas += 1
                         elif alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) :
                             vidas -= 1
                     elif nivel == 1 :
                         if alt_a_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            if vidas < 3 :
+                                vidas += 1
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
                     elif nivel == 2 :
                         if alt_b_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            if vidas < 3 :
+                                vidas += 1
                         elif alt_a_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
                     if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
@@ -752,6 +782,70 @@ def colisao_python():
             pontuacao += ganha_pontos
             quantos_pegou += 1
         cont_python += 1
+
+def colisao_colega() :
+    global pode_mover, colega_salvo, pontuacao, vidas
+
+    if not colega_salvo and centro_x // 40 < 29 :
+        if centro_x >= colega_x and centro_x <= colega_x + 30 and centro_y >= colega_y and centro_y <= colega_y + 30 :
+            pode_mover = False
+            tela.blit(pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (800, 800)), (LARGURA/2, -28))
+            pygame.draw.rect(tela, 'blue', (10, ALTURA//2, LARGURA-20, 300))
+            if nivel == 0 :
+                pergunta_txt = fonte_instrucoes.render('Qual interação tem a massa como carga?', True, cor)
+                alt_a_txt = fonte.render('Fraca', True, cor)
+                alt_b_txt = fonte.render('Gravitacional', True, cor)
+                alt_c_txt = fonte.render('Eletromagnética', True, cor)
+            elif nivel == 1 :
+                pergunta_txt = fonte_instrucoes.render('O que significa F(x) ser primitiva de f(x)?', True, cor)
+                alt_a_txt = fonte.render('A derivada de F(x) é f(x)', True, cor)
+                alt_b_txt = fonte.render('F(x) foi descoberta primeiro', True, cor)
+                alt_c_txt = fonte.render('A integral de F(x) é f(x)', True, cor)
+            elif nivel == 2 :
+                pergunta_txt = fonte_instrucoes.render('Qual operador é lido primeiro em Python?', True, cor)
+                alt_a_txt = fonte.render('**', True, cor)
+                alt_b_txt = fonte.render('/', True, cor)
+                alt_c_txt = fonte.render('+', True, cor)
+
+            pergunta_rect = pergunta_txt.get_rect(topleft=(28, ALTURA//2 + 18))
+            alt_a_rect = alt_a_txt.get_rect(topleft=(28, ALTURA//2 + 100))
+            alt_b_rect = alt_b_txt.get_rect(topleft=(28, ALTURA//2 + 170))
+            alt_c_rect = alt_c_txt.get_rect(topleft=(28, ALTURA//2 + 240))
+
+            tela.blit(pergunta_txt, pergunta_rect)
+            tela.blit(alt_a_txt, alt_a_rect)
+            tela.blit(alt_b_txt, alt_b_rect)
+            tela.blit(alt_c_txt, alt_c_rect)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if nivel == 0 :
+                        if alt_b_rect.collidepoint(event.pos) :
+                            pontuacao += ganha_pontos
+                            if vidas < 3 :
+                                vidas += 1
+                        elif alt_a_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
+                            vidas -= 1
+                    elif nivel == 1 :
+                        if alt_a_rect.collidepoint(event.pos) :
+                            pontuacao += ganha_pontos
+                            if vidas < 3 :
+                                vidas += 1
+                        elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
+                            vidas -= 1
+                    elif nivel == 2 :
+                        if alt_a_rect.collidepoint(event.pos) :
+                            pontuacao += ganha_pontos
+                            if vidas < 3 :
+                                vidas += 1
+                        elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
+                            vidas -= 1
+                    if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
+                        colega_salvo = True
+                        pode_mover = True
 
 rodando = True
 tempo = tempo_inicial
@@ -782,24 +876,25 @@ while rodando :
     colisao_relogio()
     colisao_prof()
     colisao_python()
+    colisao_colega()
 
     if tempo <= 0 or vidas < 0:
         fim_jogo()
     
-    if prof_morto and quantos_pegou == 15 :
+    if prof_morto and quantos_pegou == 15 and colega_salvo :
         nivel += 1
         if nivel == 1 :
             tempo_inicial = 6000
             ganha_pontos = 10
-            posx_inicial = 30
-            posy_inicial = 30
+            posx_inicial = LARGURA//2 - 17
+            posy_inicial = 31
             professor_img = imecc_img
             prof_morto = False
         elif nivel == 2 :
             tempo_inicial = 5500
             ganha_pontos = 15
-            posx_inicial = LARGURA//2
-            posy_inicial = (ALTURA-50)//2
+            posx_inicial = LARGURA//2 - 17
+            posy_inicial = 31
             professor_img = santiago_img
             prof_morto = False
         elif nivel == 3 :
@@ -819,6 +914,8 @@ while rodando :
         quantos_pegou = 0
         python_logos = [0]*15
         pegou_python = [False]*15
+        colega_salvo = False
+        mostrar_nivel(nivel)
 
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
