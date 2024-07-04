@@ -28,6 +28,16 @@ vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30
 relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (30, 30))
 python_logo_img = pygame.transform.scale(pygame.image.load('imgs/outros/python_logo.png'), (30, 30))
 
+musica_fundo = pygame.mixer.music.load('sons/musica_fundo.mp3')
+som_perdeu_vida = pygame.mixer.Sound('sons/som_perdeu_vida.ogg')
+som_perdeu = pygame.mixer.Sound('sons/som_perdeu.ogg')
+som_pegou_relogio = pygame.mixer.Sound('sons/som_pegou_relogio.ogg')
+som_pegou_python = pygame.mixer.Sound('sons/som_pegou_python.ogg')
+som_resposta_correta = pygame.mixer.Sound('sons/som_resposta_correta.ogg')
+
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.5)
+
 nivel = 0
 cor = 'white'
 cor_fundo = 'black'
@@ -404,7 +414,7 @@ def informacoes():
         colega_txt_linha2 = fonte_instrucoes.render('Liberte-o com os seus conhecimentos', True, cor)
         relogio_txt = fonte_instrucoes.render('Colete relógios para ganhar tempo', True, cor)
         coracao_txt = fonte_instrucoes.render('Não perca todas as suas vidas', True, cor)
-        pausar_txt = fonte_instrucoes.render('Pressione p para pausar o jogo', True, cor)
+        minipythons_txt = fonte_instrucoes.render('Colete mini Pythons para ganhar pontos', True, cor)
         voltar_txt = fonte.render('Voltar', True, cor)
 
         jogador_rect_linha1 = jogador_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 - 50))
@@ -415,7 +425,7 @@ def informacoes():
         colega_rect_linha2 = colega_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 260))
         relogio_rect = relogio_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 350))
         coracao_rect = coracao_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 440))
-        pausar_rect = pausar_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 530))
+        minipythons_rect = minipythons_txt.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 + 530))
         voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, 6*ALTURA/7 + 50))
 
         tela.blit(pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (70, 70)), (LARGURA/8 - 20, ALTURA / 6 - 60))
@@ -433,7 +443,8 @@ def informacoes():
         tela.blit(relogio_txt, relogio_rect)
         tela.blit(pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (70, 70)), (LARGURA/8 - 20, ALTURA/6 + 410))
         tela.blit(coracao_txt, coracao_rect)
-        tela.blit(pausar_txt, pausar_rect)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/outros/python_logo.png'), (70, 70)), (LARGURA/8 - 20, ALTURA/6 + 500))
+        tela.blit(minipythons_txt, minipythons_rect)
         tela.blit(voltar_txt, voltar_rect)
 
         for event in pygame.event.get():
@@ -575,7 +586,6 @@ def perdeu_jogo() :
                     mostrar_nivel(nivel)
                     return
         adicionar_entrada(nome_jogador, pontuacao)
-
         pygame.display.flip()
 
 def ganhou_jogo() :
@@ -652,7 +662,7 @@ def ganhou_jogo() :
                     colega_salvo = False
                     mostrar_nivel(nivel)
                     return
-
+        adicionar_entrada(nome_jogador, pontuacao)
         pygame.display.flip()
 
 def mostrar_nivel(nivel):
@@ -705,24 +715,28 @@ def colisao_relogio() :
     if centro_x // 40 < 29 :
         if lab[(centro_y-(num+2))//alt + 1][(centro_x+14)//larg] == 2 and lab[(centro_y-(num+2))//alt + 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y+(num+14))//alt - 1][(centro_x+14)//larg] == 2 and lab[(centro_y+(num+14))//alt - 1][(centro_x-4)//larg] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y-(num-10))//alt][(centro_x-(num))//larg + 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x-(num))//larg + 1] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
                 tempo = tempo_inicial
         if lab[(centro_y-(num-10))//alt][(centro_x+(num+6))//larg - 1] == 2 and lab[(centro_y+(num+4))//alt][(centro_x+(num+6))//larg - 1] == 2 and not pegou_relogio :
             pegou_relogio = True
+            som_pegou_relogio.play()
             if tempo + 1000 <= tempo_inicial :
                 tempo += 1000
             else :
@@ -862,27 +876,35 @@ def colisao_prof() :
                     if nivel == 0 :
                         if alt_c_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1   
                         elif alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     elif nivel == 1 :
                         if alt_a_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1  
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida()
                     elif nivel == 2 :
                         if alt_b_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1 
                         elif alt_a_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                         prof_morto = True
                         pode_mover = True
+        else :
+            pode_mover = True
 
 def colisao_python():
     global pontuacao, pegou_python, quantos_pegou
@@ -893,6 +915,7 @@ def colisao_python():
         python_rect = pygame.Rect(pos_python[0], pos_python[1], 30, 30)
         if jogador_rect.colliderect(python_rect) and pegou_python[cont_python] == False :
             pegou_python[cont_python] = True
+            som_pegou_python.play()
             pontuacao += ganha_pontos
             quantos_pegou += 1
         cont_python += 1
@@ -939,24 +962,30 @@ def colisao_colega() :
                     if nivel == 0 :
                         if alt_b_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1  
                         elif alt_a_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     elif nivel == 1 :
                         if alt_a_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1 
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     elif nivel == 2 :
                         if alt_a_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
+                            som_resposta_correta.play()   
                             if vidas < 3 :
-                                vidas += 1
+                                vidas += 1                 
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
+                            som_perdeu_vida.play()
                     if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                         colega_salvo = True
                         pode_mover = True
@@ -1067,6 +1096,7 @@ while rodando :
 
     if tempo <= 0 or vidas < 0:
         perdeu_jogo()
+        som_perdeu.play()
     
     if prof_morto and quantos_pegou == 15 and colega_salvo :
         nivel += 1
