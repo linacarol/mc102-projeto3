@@ -574,7 +574,7 @@ def perdeu_jogo() :
                     colega_salvo = False
                     mostrar_nivel(nivel)
                     return
-
+        adicionar_entrada(nome_jogador, pontuacao)
         pygame.display.flip()
 
 def ganhou_jogo() :
@@ -651,7 +651,7 @@ def ganhou_jogo() :
                     colega_salvo = False
                     mostrar_nivel(nivel)
                     return
-
+        adicionar_entrada(nome_jogador, pontuacao)
         pygame.display.flip()
 
 def mostrar_nivel(nivel):
@@ -663,14 +663,9 @@ def mostrar_nivel(nivel):
     pygame.time.delay(2000)
 
 def mostrar_ranking():
-    ranking = [
-        {'posicao': '1º', 'pontos': '?????'},
-        {'posicao': '2º', 'pontos': '?????'},
-        {'posicao': '3º', 'pontos': '?????'},
-        {'posicao': '4º', 'pontos': '?????'},
-        {'posicao': '5º', 'pontos': '?????'}
-    ]
-
+    ranking = carregar_ranking()
+    ranking_ordenado = sorted(ranking.items(), key=lambda item: item[1], reverse=True)
+ 
     while True:
         tela.fill(cor_fundo)
         ranking_txt = fonte.render('Ranking', True, cor)
@@ -681,10 +676,12 @@ def mostrar_ranking():
         tela.blit(ranking_txt, ranking_rect)
         tela.blit(voltar_txt, voltar_rect)
 
-        for i, item in enumerate(ranking):
-            posicao_txt = fonte.render(f'{item['posicao']} ........................ {item['pontos']}', True, cor)
-            posicao_rect = posicao_txt.get_rect(center=(LARGURA/2, 200 + i * 60))
+        y_pos = 200
+        for nome, pontos in ranking_ordenado:
+            posicao_txt = fonte.render(f'{nome} - {pontos} pontos!', True, cor)
+            posicao_rect = posicao_txt.get_rect(center=(LARGURA/2, y_pos))
             tela.blit(posicao_txt, posicao_rect)
+            y_pos += 60 
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -885,6 +882,8 @@ def colisao_prof() :
                     if alt_a_rect.collidepoint(event.pos) or alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                         prof_morto = True
                         pode_mover = True
+        else :
+            pode_mover = True
 
 def colisao_python():
     global pontuacao, pegou_python, quantos_pegou
@@ -1000,6 +999,26 @@ def dificuldades() :
         
         pygame.display.flip()
 
+def carregar_ranking():
+    ranking = {}
+    if os.path.exists('ranking.json'):
+        with open('ranking.json', 'r') as arquivo:
+            ranking = json.load(arquivo)
+    return ranking
+
+def adicionar_entrada(nome, pontuacao):
+    ranking = carregar_ranking()
+    if nome in ranking:
+        if pontuacao > ranking[nome]:
+            ranking[nome] = pontuacao
+    else:
+        ranking[nome] = pontuacao
+    salvar_ranking(ranking)
+
+def salvar_ranking(ranking):
+    with open('ranking.json', 'w') as arquivo:
+        json.dump(ranking, arquivo)
+
 rodando = True
 opcao = menu_inicial()
 if opcao == 'novo_jogo':
@@ -1008,6 +1027,7 @@ if opcao == 'novo_jogo':
     mostrar_nivel(nivel)
 elif opcao == 'carregar_jogo':
     carregar_jogo()
+    dificuldades()
     mostrar_nivel(nivel)
 
 if dificuldade == 0 :
