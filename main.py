@@ -34,6 +34,8 @@ som_perdeu = pygame.mixer.Sound('sons/som_perdeu.ogg')
 som_pegou_relogio = pygame.mixer.Sound('sons/som_pegou_relogio.ogg')
 som_pegou_python = pygame.mixer.Sound('sons/som_pegou_python.ogg')
 som_resposta_correta = pygame.mixer.Sound('sons/som_resposta_correta.ogg')
+som_click = pygame.mixer.Sound('sons/som_click.wav')
+som_mostrar_nivel = pygame.mixer.Sound('sons/som_mostrar_nivel.ogg')
 
 pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.5)
@@ -393,11 +395,14 @@ def menu_inicial():
                 if carregar_rect.collidepoint(event.pos):
                     return 'carregar_jogo'
                 if informacoes_rect.collidepoint(event.pos):
+                    som_click.play()
                     informacoes()
                 if sair_rect.collidepoint(event.pos):
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if ranking_rect.collidepoint(event.pos):
+                    som_click.play()
                     mostrar_ranking()
         
         pygame.display.flip()
@@ -453,6 +458,7 @@ def informacoes():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if voltar_rect.collidepoint(event.pos):
+                    som_click.play()
                     return
         pygame.display.flip()
 
@@ -502,11 +508,14 @@ def pause():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if sair_rect.collidepoint(event.pos):
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if voltar_rect.collidepoint(event.pos):
+                    som_click.play()
                     return
                 if salvar_rect.collidepoint(event.pos):
+                    som_click.play()
                     salvar_jogo()
                     return
         pygame.display.flip()
@@ -544,9 +553,11 @@ def perdeu_jogo() :
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN :
                 if sair_rect.collidepoint(event.pos) :
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
+                    som_click.play()
                     inserir_nome()
                     dificuldades()
                     if dificuldade == 0 :
@@ -621,9 +632,11 @@ def ganhou_jogo() :
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN :
                 if sair_rect.collidepoint(event.pos) :
+                    som_click.play()
                     pygame.quit()
                     sys.exit()
                 if novo_jogo_rect.collidepoint(event.pos) :
+                    som_click.play()
                     inserir_nome()
                     dificuldades()
                     if dificuldade == 0 :
@@ -670,6 +683,7 @@ def mostrar_nivel(nivel):
     nivel_txt = fonte.render(f'Nível {nivel+1}', True, cor)
     nivel_rect = nivel_txt.get_rect(center=(LARGURA/2, ALTURA/2))
     tela.blit(nivel_txt, nivel_rect)
+    som_mostrar_nivel.play()
     pygame.display.flip()
     pygame.time.delay(2000)
 
@@ -700,6 +714,7 @@ def mostrar_ranking():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if voltar_rect.collidepoint:
+                    som_click.play()
                     return
     
         pygame.display.flip()
@@ -771,9 +786,11 @@ def carregar_jogo():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for salvo_rect, salvo in salvos_rects:
                     if salvo_rect.collidepoint(event.pos):
+                        som_click.play()
                         escolher_jogo = salvo
                         break
                     if voltar_rect.collidepoint:
+                        som_click.play()
                         menu_inicial()
 
         pygame.display.flip()
@@ -1016,12 +1033,15 @@ def dificuldades() :
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if facil_rect.collidepoint(event.pos):
+                    som_click.play()
                     dificuldade = 0
                     return
                 if medio_rect.collidepoint(event.pos):
+                    som_click.play()
                     dificuldade = 1
                     return
                 if dificil_rect.collidepoint(event.pos):
+                    som_click.play()
                     dificuldade = 2
                     return
         
@@ -1050,10 +1070,12 @@ def salvar_ranking(ranking):
 rodando = True
 opcao = menu_inicial()
 if opcao == 'novo_jogo':
+    som_click.play()
     inserir_nome()
     dificuldades()
     mostrar_nivel(nivel)
 elif opcao == 'carregar_jogo':
+    som_click.play()
     carregar_jogo()
     dificuldades()
     mostrar_nivel(nivel)
