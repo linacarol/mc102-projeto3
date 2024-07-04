@@ -4,6 +4,7 @@ import sys
 import json
 import os
 import time
+import random
 
 pygame.init()
 
@@ -26,6 +27,7 @@ imecc_img = pygame.transform.scale(pygame.image.load('imgs/professor/professor_i
 santiago_img = pygame.transform.scale(pygame.image.load('imgs/professor/professor_santiago.png'), (30, 30))
 vida_img = pygame.transform.scale(pygame.image.load('imgs/outros/vida.png'), (30, 30))
 relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'), (30, 30))
+python_logo_img = pygame.transform.scale(pygame.image.load('imgs/outros/python_logo.png'), (30, 30))
 
 nivel = 0
 cor = 'white'
@@ -33,20 +35,22 @@ cor_fundo = 'black'
 
 if nivel == 0 :
     posx_inicial = 30
-    posy_inicial = 395
+    posy_inicial = 365
     tempo_inicial = 6500
     ganha_pontos = 5
     professor_img = ifgw_img
     profx_inicial = LARGURA//2 + 160
-    profy_inicial = ALTURA//2 - 64
+    profy_inicial = ALTURA//2 - 50
     prof_direcao = 'direita'
     prof_morto = False
+    pegou_python = [False]*15
+    quantos_pegou = 0
 
 jog_x = posx_inicial
 jog_y = posy_inicial
 direcao = 'direita'
 direcao_comando = 'direita'
-velocidade_jog = 2
+velocidade_jog = 3
 vidas = 3
 pegou_relogio = False
 pontuacao = 0
@@ -57,6 +61,8 @@ prof_y = profy_inicial
 prof_img = professor_img
 velocidade_prof = 2
 pode_mover = True
+n_python_logos = 15
+python_logos = [0]*15
 
 class Professor :
     def __init__(self, coord_x, coord_y, alvo, velocidade, img, direc, morte) :
@@ -243,8 +249,12 @@ class Professor :
         return self.pos_x, self.pos_y, self.direcao
 
 def desenha_labirinto(lab) :
+    global python_logos
+
     larg = LARGURA // 40
     alt = (ALTURA - 70) // 21
+    cont_python = 0
+
     for i in range(len(lab)) :
         for j in range(len(lab[i])) :
             if lab[i][j] == 1 :
@@ -258,6 +268,11 @@ def desenha_labirinto(lab) :
                         pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
             elif lab[i][j] == 2 and not pegou_relogio :
                 tela.blit(relogio_img, (j*larg, i*alt))
+            elif lab[i][j] == 3 :
+                if not pegou_python[cont_python] :
+                    python_logos[cont_python] = (j * larg, i * alt)
+                    tela.blit(python_logo_img, python_logos[cont_python])
+                cont_python += 1
     
     pygame.draw.rect(tela, 'white', ((60, 800), (0.12*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
@@ -459,6 +474,7 @@ def pause():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                salvar_jogo()
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -626,7 +642,7 @@ def carregar_jogo():
     if escolher_jogo:
         with open(escolher_jogo, 'r') as arquivo:
             dados_salvos = json.load(arquivo)
-        global jog_x, jog_y, nivel, vidas, tempo, lab, pegou_relogio, nome_jogador
+        global jog_x, jog_y, nivel, vidas, tempo, lab, pegou_relogio, nome_jogador, pontuacao
         jog_x = dados_salvos['jog_x']
         jog_y = dados_salvos['jog_y']
         nivel = dados_salvos['nivel']
@@ -634,6 +650,7 @@ def carregar_jogo():
         tempo = dados_salvos['tempo']
         pegou_relogio = dados_salvos['pegou_relogio']
         nome_jogador = dados_salvos['nome_jogador']
+        pontuacao = dados_salvos['pontuacao']
         lab = labirinto[nivel]
 
 def inserir_nome():
@@ -723,6 +740,19 @@ def colisao_prof() :
                         prof_morto = True
                         pode_mover = True
 
+def colisao_python():
+    global pontuacao, pegou_python, quantos_pegou
+
+    jogador_rect = pygame.Rect(jog_x, jog_y, 35, 35)
+    cont_python = 0
+    for pos_python in python_logos:
+        python_rect = pygame.Rect(pos_python[0], pos_python[1], 30, 30)
+        if jogador_rect.colliderect(python_rect) and pegou_python[cont_python] == False :
+            pegou_python[cont_python] = True
+            pontuacao += ganha_pontos
+            quantos_pegou += 1
+        cont_python += 1
+
 rodando = True
 tempo = tempo_inicial
 opcao = menu_inicial()
@@ -751,11 +781,12 @@ while rodando :
         jog_x, jog_y = move_jogador(jog_x, jog_y)
     colisao_relogio()
     colisao_prof()
+    colisao_python()
 
     if tempo <= 0 or vidas < 0:
         fim_jogo()
     
-    if prof_morto :
+    if prof_morto and quantos_pegou == 15 :
         nivel += 1
         if nivel == 1 :
             tempo_inicial = 6000
@@ -785,6 +816,9 @@ while rodando :
         prof_img = professor_img
         prof_morto = False
         pode_mover = True
+        quantos_pegou = 0
+        python_logos = [0]*15
+        pegou_python = [False]*15
 
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
