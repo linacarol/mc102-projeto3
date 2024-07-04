@@ -424,9 +424,17 @@ def menu_inicial():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if novo_jogo_rect.collidepoint(event.pos):
-                    return 'novo_jogo'
+                    som_click.play()
+                    inserir_nome()
+                    dificuldades()
+                    mostrar_nivel(nivel)
+                    return
                 if carregar_rect.collidepoint(event.pos):
-                    return 'carregar_jogo'
+                    som_click.play()
+                    carregar_jogo()
+                    dificuldades()
+                    mostrar_nivel(nivel)
+                    return
                 if informacoes_rect.collidepoint(event.pos):
                     som_click.play()
                     informacoes()
@@ -1119,17 +1127,7 @@ def salvar_ranking(ranking):
         json.dump(ranking, arquivo)
 
 rodando = True
-opcao = menu_inicial()
-if opcao == 'novo_jogo':
-    som_click.play()
-    inserir_nome()
-    dificuldades()
-    mostrar_nivel(nivel)
-elif opcao == 'carregar_jogo':
-    som_click.play()
-    carregar_jogo()
-    dificuldades()
-    mostrar_nivel(nivel)
+menu_inicial()
 
 if dificuldade == 0 :
     tempo = tempo_inicial
