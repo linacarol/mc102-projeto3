@@ -958,7 +958,7 @@ def colisao_prof() :
                                 vidas += 1  
                         elif alt_b_rect.collidepoint(event.pos) or alt_c_rect.collidepoint(event.pos) :
                             vidas -= 1
-                            som_perdeu_vida()
+                            som_perdeu_vida.play()
                     elif nivel == 2 :
                         if alt_b_rect.collidepoint(event.pos) :
                             pontuacao += ganha_pontos
