@@ -29,8 +29,11 @@ relogio_img = pygame.transform.scale(pygame.image.load('imgs/outros/relogio.png'
 python_logo_img = pygame.transform.scale(pygame.image.load('imgs/outros/python_logo.png'), (30, 30))
 
 nivel = 0
+cor_fundo = pygame.Color(10, 32, 47)
+cor_titulo = pygame.Color(211, 40, 54)
+cor_texto = pygame.Color(212, 226, 204)
+cor_opcao = pygame.Color(132, 174, 164)
 cor = 'white'
-cor_fundo = 'black'
 
 if nivel == 0 :
     posx_inicial = 30
@@ -248,23 +251,45 @@ class Professor :
         return self.pos_x, self.pos_y, self.direcao
 
 def desenha_labirinto(lab) :
-    global python_logos, colega_x, colega_y
+    global python_logos, colega_x, colega_y, cor_linhas_lab, cor_parede, cor_fundo_lab
 
     larg = LARGURA // 40
     alt = (ALTURA - 70) // 21
     cont_python = 0
 
+    if nivel == 0 :
+        cor_linhas_lab = pygame.Color(14,154,167)
+        cor_parede = pygame.Color(150,206,180)
+        cor_fundo_lab = 'lightskyblue1'
+    elif nivel == 1 :
+        cor_linhas_lab = pygame.Color(20, 30, 70)
+        cor_parede = 'tomato'
+        cor_fundo_lab = 'oldlace'
+    elif nivel == 2 :
+        cor_linhas_lab = pygame.Color(14,54,124)
+        cor_parede = pygame.Color(251,162,87)
+        cor_fundo_lab = 'floralwhite'
+
+    tela.fill(cor_fundo_lab)
+
     for i in range(len(lab)) :
         for j in range(len(lab[i])) :
             if lab[i][j] == 1 :
-                pygame.draw.rect(tela, cor, (j*larg, i*alt, larg, alt))
-                pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 2)
-                pygame.draw.line(tela, cor_fundo, (j * larg, i * alt), ((j + 1) * larg, i * alt), 2)
-                pygame.draw.line(tela, cor_fundo, ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 2)
-                pygame.draw.line(tela, cor_fundo, ((j + 1) * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 1) * alt), 2)
+                pygame.draw.rect(tela, cor_parede, (j*larg, i*alt, larg, alt))
+                pygame.draw.line(tela, cor_linhas_lab, (j * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 0.5) * alt), 2)
+                pygame.draw.line(tela, cor_linhas_lab, (j * larg, i * alt), ((j + 1) * larg, i * alt), 2)
+                pygame.draw.line(tela, cor_linhas_lab, (j * larg, (i + 1) * alt), ((j + 1) * larg, (i + 1) * alt), 2)
+                pygame.draw.line(tela, cor_linhas_lab, ((j + 0.5) * larg, i * alt), ((j + 0.5) * larg, (i + 0.5) * alt), 2)
+                pygame.draw.line(tela, cor_linhas_lab, ((j + 1) * larg, (i + 0.5) * alt), ((j + 1) * larg, (i + 1) * alt), 2)
+                pygame.draw.line(tela, cor_linhas_lab, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
                 if j > 0 :
-                    if lab[i][j-1] != 0 :          
-                        pygame.draw.line(tela, cor_fundo, (j * larg, (i + 0.5) * alt), (j * larg, (i + 1) * alt), 2)
+                    if lab[i][j-1] != 1 :
+                        pygame.draw.line(tela, cor_linhas_lab, (j * larg, i * alt), (j * larg, (i + 1) * alt), 2)
+                if j < len(lab[i]) - 1 :
+                    if lab[i][j+1] != 1 :
+                        pygame.draw.line(tela, cor_linhas_lab, ((j + 1) * larg, i * alt), ((j + 1) * larg, (i + 1) * alt), 2)
+                if j == 0 :
+                    pygame.draw.line(tela, cor_linhas_lab, (j * larg, i * alt), (j * larg, (i + 1) * alt), 2)
             elif lab[i][j] == 2 and not pegou_relogio :
                 tela.blit(relogio_img, (j*larg, i*alt))
             elif lab[i][j] == 3 :
@@ -276,7 +301,9 @@ def desenha_labirinto(lab) :
                 colega_x = j*larg
                 colega_y = i*alt
                 tela.blit(colega_img, (j*larg, i*alt))
-    
+
+    pygame.draw.rect(tela, cor_linhas_lab, (0, ALTURA-82, LARGURA, 82))
+
     pygame.draw.rect(tela, 'white', ((60, 800), (0.165*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
         pygame.draw.rect(tela, 'green', ((60, 800), (0.165*tempo, 30)))
@@ -352,12 +379,18 @@ def move_jogador(jog_x, jog_y) :
 def menu_inicial():
     while True:
         tela.fill(cor_fundo)
-        titulo_txt = fonte_titulo.render('Os Labirintos da Unicamp', True, 'white')
-        novo_jogo_txt = fonte.render('Novo Jogo', True, cor)
-        informacoes_txt = fonte.render('Informações', True, cor)
-        sair_txt = fonte.render('Sair', True, cor)
-        carregar_txt = fonte.render('Carregar Jogo', True, cor)
-        ranking_txt = fonte.render('Ranking', True, cor)
+
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (900, 900)), (LARGURA/2 + 30, ALTURA/2 - 105))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_imecc.png'), (300, 300)), (128, ALTURA/2 - 150))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_ifgw.png'), (300, 300)), (-70, ALTURA/2 - 150))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_santiago.png'), (310, 310)), (20, ALTURA/2))
+
+        titulo_txt = fonte_titulo.render('Os Labirintos da Unicamp', True, cor_titulo)
+        novo_jogo_txt = fonte.render('Novo Jogo', True, cor_opcao)
+        informacoes_txt = fonte.render('Informações', True, cor_opcao)
+        sair_txt = fonte.render('Sair', True, cor_opcao)
+        carregar_txt = fonte.render('Carregar Jogo', True, cor_opcao)
+        ranking_txt = fonte.render('Ranking', True, cor_opcao)
 
         titulo_rect = titulo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 200))
         novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 60))
@@ -396,16 +429,16 @@ def informacoes():
     while True:
         tela.fill(cor_fundo)
 
-        jogador_txt_linha1 = fonte_instrucoes.render('Este é você!', True, cor)
-        jogador_txt_linha2 = fonte_instrucoes.render('Utilize as setas do teclado para andar', True, cor)
-        professor_txt_linha1 = fonte_instrucoes.render('Cuidado com os professores!', True, cor)
-        professor_txt_linha2 = fonte_instrucoes.render('Derrote-os respondendo às perguntas', True, cor)
-        colega_txt_linha1 = fonte_instrucoes.render('Este é seu colega!', True, cor)
-        colega_txt_linha2 = fonte_instrucoes.render('Liberte-o com os seus conhecimentos', True, cor)
-        relogio_txt = fonte_instrucoes.render('Colete relógios para ganhar tempo', True, cor)
-        coracao_txt = fonte_instrucoes.render('Não perca todas as suas vidas', True, cor)
-        minipythons_txt = fonte_instrucoes.render('Colete mini Pythons para ganhar pontos', True, cor)
-        voltar_txt = fonte.render('Voltar', True, cor)
+        jogador_txt_linha1 = fonte_instrucoes.render('Este é você!', True, cor_texto)
+        jogador_txt_linha2 = fonte_instrucoes.render('Utilize as setas do teclado para andar', True, cor_texto)
+        professor_txt_linha1 = fonte_instrucoes.render('Cuidado com os professores!', True, cor_texto)
+        professor_txt_linha2 = fonte_instrucoes.render('Derrote-os respondendo às perguntas', True, cor_texto)
+        colega_txt_linha1 = fonte_instrucoes.render('Este é seu colega!', True, cor_texto)
+        colega_txt_linha2 = fonte_instrucoes.render('Liberte-o com os seus conhecimentos', True, cor_texto)
+        relogio_txt = fonte_instrucoes.render('Colete relógios para ganhar tempo', True, cor_texto)
+        coracao_txt = fonte_instrucoes.render('Não perca todas as suas vidas', True, cor_texto)
+        minipythons_txt = fonte_instrucoes.render('Colete mini Pythons para ganhar pontos', True, cor_texto)
+        voltar_txt = fonte.render('Voltar', True, cor_opcao)
 
         jogador_rect_linha1 = jogador_txt_linha1.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 - 50))
         jogador_rect_linha2 = jogador_txt_linha2.get_rect(topleft=(LARGURA/8 + 80, ALTURA/6 - 10))
@@ -473,9 +506,9 @@ def salvar_jogo():
 def pause():
     while True:
         tela.fill(cor_fundo)
-        sair_txt = fonte.render('Sair', True, cor)
-        voltar_txt = fonte.render('Voltar', True, cor)
-        salvar_txt = fonte.render('Salvar', True, cor)
+        sair_txt = fonte.render('Sair', True, cor_opcao)
+        voltar_txt = fonte.render('Voltar', True, cor_opcao)
+        salvar_txt = fonte.render('Salvar', True, cor_opcao)
 
         sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
         voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2))
@@ -507,12 +540,16 @@ def perdeu_jogo() :
         global prof_x, prof_y, prof_direcao, prof_img, prof_morto, pode_mover, quantos_pegou, python_logos, pegou_python, colega_salvo, velocidade_prof
 
         tela.fill(cor_fundo)
-        fim_txt = fonte_titulo.render('Fim de jogo', True, cor)
-        exame_txt = fonte.render('Você ficou de exame!', True, cor)
-        estude_txt = fonte.render('Estude mais e tente novamente', True, cor)
-        pontuacao_txt = fonte.render(f'Pontuação: {pontuacao}', True, cor)
-        novo_jogo_txt = fonte.render('Jogar novamente', True, cor)
-        sair_txt = fonte.render('Sair', True, cor)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_ifgw.png'), (400, 400)), (-140, ALTURA - 600))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_imecc.png'), (400, 400)), (-10, ALTURA - 420))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_santiago.png'), (400, 400)), (LARGURA - 380, ALTURA - 440))
+
+        fim_txt = fonte_titulo.render('Fim de jogo', True, cor_titulo)
+        exame_txt = fonte.render('Você ficou de exame!', True, cor_texto)
+        estude_txt = fonte.render('Estude mais e tente novamente', True, cor_texto)
+        pontuacao_txt = fonte.render(f'Pontuação: {pontuacao}', True, cor_texto)
+        novo_jogo_txt = fonte.render('Jogar novamente', True, cor_opcao)
+        sair_txt = fonte.render('Sair', True, cor_opcao)
 
         fim_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 200))
         exame_rect = exame_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 100))
@@ -584,12 +621,15 @@ def ganhou_jogo() :
         global prof_x, prof_y, prof_direcao, prof_img, prof_morto, pode_mover, quantos_pegou, python_logos, pegou_python, colega_salvo, velocidade_prof
 
         tela.fill(cor_fundo)
-        fim_txt = fonte_titulo.render('Parabéns!', True, cor)
-        exame_txt = fonte.render('Você sobreviveu ao', True, cor)
-        estude_txt = fonte.render('primeiro semestre na Unicamp!', True, cor)
-        pontuacao_txt = fonte.render(f'Pontuação: {pontuacao}', True, cor)
-        novo_jogo_txt = fonte.render('Jogar novamente', True, cor)
-        sair_txt = fonte.render('Sair', True, cor)
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (600, 600)), (LARGURA/2 + 180, ALTURA - 400))
+        tela.blit(pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (300, 300)), (60, 30))
+        
+        fim_txt = fonte_titulo.render('Parabéns!', True, cor_titulo)
+        exame_txt = fonte.render('Você sobreviveu ao', True, cor_texto)
+        estude_txt = fonte.render('primeiro semestre na Unicamp!', True, cor_texto)
+        pontuacao_txt = fonte.render(f'Pontuação: {pontuacao}', True, cor_texto)
+        novo_jogo_txt = fonte.render('Jogar novamente', True, cor_opcao)
+        sair_txt = fonte.render('Sair', True, cor_opcao)
 
         fim_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 200))
         exame_rect = exame_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 100))
@@ -656,10 +696,20 @@ def ganhou_jogo() :
         pygame.display.flip()
 
 def mostrar_nivel(nivel):
+    if nivel == 0 :
+        local = 'IFGW'
+    elif nivel == 1 :
+        local = 'IMECC'
+    elif nivel == 2 :
+        local = 'IC'
+
     tela.fill(cor_fundo)
-    nivel_txt = fonte.render(f'Nível {nivel+1}', True, cor)
+    nivel_txt = fonte.render(f'Nível {nivel+1}', True, cor_titulo)
+    local_txt = fonte.render(f'{local}', True, cor_texto)
     nivel_rect = nivel_txt.get_rect(center=(LARGURA/2, ALTURA/2))
+    local_rect = local_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
     tela.blit(nivel_txt, nivel_rect)
+    tela.blit(local_txt, local_rect)
     pygame.display.flip()
     pygame.time.delay(2000)
 
@@ -669,8 +719,8 @@ def mostrar_ranking():
  
     while True:
         tela.fill(cor_fundo)
-        ranking_txt = fonte.render('Ranking', True, cor)
-        voltar_txt = fonte.render('Voltar', True, cor)
+        ranking_txt = fonte.render('Ranking', True, cor_titulo)
+        voltar_txt = fonte.render('Voltar', True, cor_opcao)
         ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 350))
         voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 360))
         
@@ -679,7 +729,7 @@ def mostrar_ranking():
 
         y_pos = 200
         for nome, pontos in ranking_ordenado:
-            posicao_txt = fonte.render(f'{nome} - {pontos} pontos!', True, cor)
+            posicao_txt = fonte.render(f'{nome} - {pontos} pontos!', True, cor_texto)
             posicao_rect = posicao_txt.get_rect(center=(LARGURA/2, y_pos))
             tela.blit(posicao_txt, posicao_rect)
             y_pos += 60 
@@ -735,18 +785,18 @@ def carregar_jogo():
     escolher_jogo = None
     while escolher_jogo == None:
         tela.fill(cor_fundo)
-        titulo_carregar_txt = fonte_titulo.render('Selecione um jogo salvo: ', True, cor)
+        titulo_carregar_txt = fonte_titulo.render('Selecione um jogo salvo: ', True, cor_titulo)
         tela.blit(titulo_carregar_txt, (LARGURA/2 - titulo_carregar_txt.get_width()/2, 65))
         
         salvos_rects = []
         for i, salvo in enumerate(salvos):
             nome_salvo = salvo.split('_')[1].replace('.json', '')
-            salvo_txt = fonte.render(f'Carregamento {i+1}: {nome_salvo}', True, cor)
+            salvo_txt = fonte.render(f'Carregamento {i+1}: {nome_salvo}', True, cor_texto)
             salvo_rect = salvo_txt.get_rect(center=(LARGURA/2, 200 + i * 50))
             tela.blit(salvo_txt, salvo_rect)
             salvos_rects.append((salvo_rect, salvo))
 
-        voltar_txt = fonte.render('Voltar', True, cor)
+        voltar_txt = fonte.render('Voltar', True, cor_opcao)
         voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 360))
         tela.blit(voltar_txt, voltar_rect)
 
@@ -797,8 +847,8 @@ def inserir_nome():
     input = True
     while input:
         tela.fill(cor_fundo)
-        inserir_nome_txt = fonte.render('Digite seu nome:', True, cor)
-        nome_txt = fonte.render(nome_jogador, True, cor)
+        inserir_nome_txt = fonte.render('Digite seu nome:', True, cor_titulo)
+        nome_txt = fonte.render(nome_jogador, True, cor_texto)
         tela.blit(inserir_nome_txt, (LARGURA/2 - inserir_nome_txt.get_width()/2, ALTURA/2 - 100))
         tela.blit(nome_txt, (LARGURA/2 - nome_txt.get_width()/2, ALTURA/2))
         pygame.display.flip()
@@ -827,7 +877,7 @@ def colisao_prof() :
                 tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_imecc.png'), (800, 800)), (LARGURA/2, -28))
             elif nivel == 2 :
                 tela.blit(pygame.transform.scale(pygame.image.load('imgs/professor/professor_santiago.png'), (800, 800)), (LARGURA/2, -28))
-            pygame.draw.rect(tela, 'blue', (10, ALTURA//2, LARGURA-20, 300))
+            pygame.draw.rect(tela, cor_linhas_lab, (10, ALTURA//2, LARGURA-20, 300))
             if nivel == 0 :
                 pergunta_txt = fonte_instrucoes.render('Qual foi um objeto de estudo da física após 1920?', True, cor)
                 alt_a_txt = fonte.render('Mecânica', True, cor)
@@ -906,7 +956,7 @@ def colisao_colega() :
         if centro_x >= colega_x and centro_x <= colega_x + 30 and centro_y >= colega_y and centro_y <= colega_y + 30 :
             pode_mover = False
             tela.blit(pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (800, 800)), (LARGURA/2, -28))
-            pygame.draw.rect(tela, 'blue', (10, ALTURA//2, LARGURA-20, 300))
+            pygame.draw.rect(tela, cor_linhas_lab, (10, ALTURA//2, LARGURA-20, 300))
             if nivel == 0 :
                 pergunta_txt = fonte_instrucoes.render('Qual interação tem a massa como carga?', True, cor)
                 alt_a_txt = fonte.render('Fraca', True, cor)
@@ -968,10 +1018,10 @@ def dificuldades() :
 
     while True:
         tela.fill(cor_fundo)
-        selecione_txt = fonte_titulo.render('Selecione a dificuldade:', True, 'white')
-        facil_txt = fonte.render('Fácil', True, cor)
-        medio_txt = fonte.render('Médio', True, cor)
-        dificil_txt = fonte.render('Difícil', True, cor)
+        selecione_txt = fonte_titulo.render('Selecione a dificuldade:', True, cor_titulo)
+        facil_txt = fonte.render('Fácil', True, cor_opcao)
+        medio_txt = fonte.render('Médio', True, cor_opcao)
+        dificil_txt = fonte.render('Difícil', True, cor_opcao)
 
         selecione_rect = selecione_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 200))
         facil_rect = facil_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 60))
