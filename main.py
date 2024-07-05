@@ -1,3 +1,6 @@
+# Carolina Momoli da Costa - 252062
+# Victor Amaral de Sousa - 281878
+
 from labirintos import labirinto
 import pygame
 import sys
