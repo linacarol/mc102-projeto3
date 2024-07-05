@@ -79,6 +79,18 @@ n_python_logos = 15
 python_logos = [0]*15
 
 class Professor :
+    """
+    Classe que guarda as informações sobre os professores
+
+    Parâmetros:
+    coord_x: coordenada x do professor
+    coord_y: coordenada y do professor
+    alvo: coordenadas do aluno
+    velocidade: com quantos pixels o professor se movimenta
+    img: imagem do professor
+    direc: direção do movimento do professor
+    morte: variável que informa se o professor está ou não no jogo
+    """
     def __init__(self, coord_x, coord_y, alvo, velocidade, img, direc, morte) :
         self.pos_x = coord_x
         self.pos_y = coord_y
@@ -93,12 +105,18 @@ class Professor :
         self.rect = self.desenha()
 
     def desenha(self) :
+        """
+        Desenha a imagem do professor na tela caso ele não tenha morrido
+        """
         if not self.morte :
             tela.blit(self.img, (self.pos_x, self.pos_y))
         prof_rect = pygame.rect.Rect((self.centro_x - 15, self.centro_y - 15), (35, 35))
         return prof_rect
     
     def verif_colisoes(self) :
+        """
+        Método que verifica para quais lados o professor pode andar
+        """
         alt = (ALTURA - 70) // 21
         larg = LARGURA // 40
         num = 14
@@ -120,6 +138,9 @@ class Professor :
         return self.movimentos
     
     def anda(self) :
+        """
+        Método que faz a movimentação do professor de acordo com as coordenadas do alvo
+        """
         if pode_mover :
             if self.direcao == 'direita' :
                 if self.alvo[0] > self.pos_x and self.movimentos[0] :
@@ -263,6 +284,10 @@ class Professor :
         return self.pos_x, self.pos_y, self.direcao
 
 def desenha_labirinto(lab) :
+    """
+    Função que desenha a tela do labirinto a partir de uma matriz,
+    que será passada por meio do parâmetro lab
+    """
     global python_logos, colega_x, colega_y, cor_linhas_lab, cor_parede, cor_fundo_lab
 
     larg = LARGURA // 40
@@ -336,6 +361,9 @@ def desenha_labirinto(lab) :
     tela.blit(pontos_txt, pontos_rect)
 
 def desenha_jogador() :
+    """
+    Função que desenha o jogador de acordo com a direção na qual ele se movimenta
+    """
     if direcao == 'direita' :
         tela.blit(pygame.transform.flip(jogador_img, True, False), (jog_x, jog_y))
     elif direcao == 'esquerda' :
@@ -346,6 +374,10 @@ def desenha_jogador() :
         tela.blit(jogador_img, (jog_x, jog_y))
 
 def verifica_posicao(centrox, centroy) :
+    """
+    Função que verifica para quais lados o jogador pode se movimentar,
+    utilizando, como parâmetros, as coordenadas (x, y) do centro do jogador
+    """
     espacos = [False, False, False, False]
     larg = LARGURA // 40
     alt = (ALTURA - 70) // 21
@@ -367,6 +399,10 @@ def verifica_posicao(centrox, centroy) :
     return espacos
 
 def move_jogador(jog_x, jog_y) :
+    """
+    Função que faz a movimentação do jogador por meio das teclas do teclado
+    Parâmetros: coordenadas (x, y) do jogador
+    """
     global direcao
     global direcao_comando
     tecla = pygame.key.get_pressed()
@@ -389,6 +425,9 @@ def move_jogador(jog_x, jog_y) :
     return jog_x, jog_y
 
 def menu_inicial():
+    """
+    Função que desenha a tela inicial do jogo
+    """
     while True:
         tela.fill(cor_fundo)
 
@@ -449,6 +488,9 @@ def menu_inicial():
         pygame.display.flip()
      
 def informacoes():
+    """
+    Função que desenha a tela que contém as informações do jogo
+    """
     while True:
         tela.fill(cor_fundo)
 
@@ -504,6 +546,9 @@ def informacoes():
         pygame.display.flip()
 
 def salvar_jogo():
+    """
+    Função utilizada para salvar o jogo
+    """
     dados = {
         'jog_x': jog_x,
         'jog_y': jog_y,
@@ -528,6 +573,9 @@ def salvar_jogo():
         json.dump(dados, arquivo)
 
 def pause():
+    """
+    Função utilizada para pausar o jogo
+    """
     while True:
         tela.fill(cor_fundo)
         sair_txt = fonte.render('Sair', True, cor_opcao)
@@ -562,6 +610,9 @@ def pause():
         pygame.display.flip()
 
 def perdeu_jogo() :
+    """
+    Função que desenha a tela de derrota do jogo
+    """
     while True :
         global tempo, nivel, lab, jog_x, jog_y, direcao, direcao_comando, vidas, pegou_relogio, pontuacao, ganha_pontos
         global prof_x, prof_y, prof_direcao, prof_img, prof_morto, pode_mover, quantos_pegou, python_logos, pegou_python, colega_salvo, velocidade_prof
@@ -645,6 +696,9 @@ def perdeu_jogo() :
         pygame.display.flip()
 
 def ganhou_jogo() :
+    """
+    Função que desenha a tela de vitória do jogo
+    """
     while True :
         global tempo, nivel, lab, jog_x, jog_y, direcao, direcao_comando, vidas, pegou_relogio, pontuacao, ganha_pontos
         global prof_x, prof_y, prof_direcao, prof_img, prof_morto, pode_mover, quantos_pegou, python_logos, pegou_python, colega_salvo, velocidade_prof
@@ -727,6 +781,9 @@ def ganhou_jogo() :
         pygame.display.flip()
 
 def mostrar_nivel(nivel):
+    """
+    Função que desenha a tela de níveis no inicio de cada nível diferente
+    """
     if nivel == 0 :
         local = 'IFGW'
     elif nivel == 1 :
@@ -747,6 +804,9 @@ def mostrar_nivel(nivel):
     pygame.time.delay(2000)
 
 def mostrar_ranking():
+    """
+    Função utilizada para mostrar a tela de ranking do jogo
+    """
     ranking = carregar_ranking()
     ranking_ordenado = sorted(ranking.items(), key=lambda item: item[1], reverse=True)
  
@@ -779,6 +839,10 @@ def mostrar_ranking():
         pygame.display.flip()
 
 def colisao_relogio() :
+    """
+    Função utilizada para verificar se o jogador colidiu com o relógio
+    Caso sim, o tempo do nível é aumentado
+    """
     global pegou_relogio
     global tempo
 
@@ -817,6 +881,9 @@ def colisao_relogio() :
                 tempo = tempo_inicial
 
 def carregar_jogo():
+    """
+    Função que desenha a tela que mostra os jogos salvos
+    """
     salvos = [i for i in os.listdir() if i.startswith('save_') and i.endswith('.json')]
     if not salvos:
         return None
@@ -882,6 +949,9 @@ def carregar_jogo():
         lab = labirinto[nivel]
 
 def inserir_nome():
+    """
+    Função que desenha a tela de inserção de nome antes de cada jogo novo
+    """
     global nome_jogador
     nome_jogador = ''
     input = True
@@ -906,6 +976,10 @@ def inserir_nome():
                     nome_jogador += event.unicode
 
 def colisao_prof() :
+    """
+    Função que verifica se o jogador colidiu com o professor
+    Caso sim, as perguntas são desenhadas na tela
+    """
     global pode_mover, prof_morto, pontuacao, vidas
 
     if not prof_morto and centro_x // 40 < 29 :
@@ -983,6 +1057,10 @@ def colisao_prof() :
             pode_mover = True
 
 def colisao_python():
+    """
+    Função que verifica se o jogador colidiu com os mini Pythons
+    Se sim, o jogador pontua
+    """
     global pontuacao, pegou_python, quantos_pegou
 
     jogador_rect = pygame.Rect(jog_x, jog_y, 35, 35)
@@ -997,6 +1075,10 @@ def colisao_python():
         cont_python += 1
 
 def colisao_colega() :
+    """
+    Função que verifica que o jogador colidiu com o colega
+    Caso sim, as perguntas aparecem na tela
+    """
     global pode_mover, colega_salvo, pontuacao, vidas
 
     if not colega_salvo and centro_x // 40 < 29 :
@@ -1067,6 +1149,9 @@ def colisao_colega() :
                         pode_mover = True
 
 def dificuldades() :
+    """
+    Função que desenha a tela de escolha de dificuldades
+    """
     global dificuldade
 
     while True:
@@ -1107,6 +1192,9 @@ def dificuldades() :
         pygame.display.flip()
 
 def carregar_ranking():
+    """
+    Função que abre o arquivo que guarda as pontuações no ranking
+    """
     ranking = {}
     if os.path.exists('ranking.json'):
         with open('ranking.json', 'r') as arquivo:
@@ -1114,6 +1202,9 @@ def carregar_ranking():
     return ranking
 
 def adicionar_entrada(nome, pontuacao):
+    """
+    Função que adiciona entradas no ranking
+    """
     ranking = carregar_ranking()
     if nome in ranking:
         if pontuacao > ranking[nome]:
@@ -1123,6 +1214,9 @@ def adicionar_entrada(nome, pontuacao):
     salvar_ranking(ranking)
 
 def salvar_ranking(ranking):
+    """
+    Função que salva o arquivo do ranking
+    """
     with open('ranking.json', 'w') as arquivo:
         json.dump(ranking, arquivo)
 
