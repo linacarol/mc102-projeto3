@@ -54,7 +54,7 @@ cor_opcao = pygame.Color(132, 174, 164)
 cor = 'white'
 
 nivel = 0
-tempo_inicial = 4000
+tempo_inicial = 3500
 vidas = 3
 pontuacao = 0
 ganha_pontos = 5
@@ -354,13 +354,13 @@ def desenha_labirinto(lab) :
 
     pygame.draw.rect(tela, cor_linhas_lab, (0, ALTURA-82, LARGURA, 82))
 
-    pygame.draw.rect(tela, 'white', ((60, 800), (0.165*tempo_inicial, 30)))
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.215*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
-        pygame.draw.rect(tela, 'green', ((60, 800), (0.165*tempo, 30)))
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.215*tempo, 30)))
     elif tempo > tempo_inicial/4 :
-        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.165*tempo, 30)))
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.215*tempo, 30)))
     else :
-        pygame.draw.rect(tela, 'red', ((60, 800), (0.165*tempo, 30)))
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.215*tempo, 30)))
 
     if vidas > 0 :
         tela.blit(vida_img, (1050, 800))
@@ -677,7 +677,7 @@ def perdeu_jogo() :
                     som_click.play()
                     inserir_nome()
 
-                    tempo_inicial = 4000
+                    tempo_inicial = 3500
                     tempo = tempo_inicial
                     nivel = 0
                     lab = labirinto[nivel]
@@ -753,7 +753,7 @@ def ganhou_jogo() :
                     som_click.play()
                     inserir_nome()
 
-                    tempo_inicial = 4000
+                    tempo_inicial = 3500
                     tempo = tempo_inicial
                     nivel = 0
                     lab = labirinto[nivel]
@@ -1197,11 +1197,11 @@ while rodando :
     if prof_morto and quantos_pegou == 15 and colega_salvo :
         nivel += 1
         if nivel == 1 :
-            tempo = 4000
+            tempo = 3500
             professor_img = imecc_img
             prof_morto = False
         elif nivel == 2 :
-            tempo = 4000 * 0.9
+            tempo = 3500 * 0.9
             professor_img = santiago_img
             prof_morto = False
         elif nivel == 3 :
