@@ -25,6 +25,7 @@ fonte = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 32)
 fonte_titulo = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 38)
 fonte_instrucoes = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 22)
 fonte_pontos = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 18)
+fonte_creditos = pygame.font.Font('fonts/PressStart2P-Regular.ttf', 10)
 
 jogador_img = pygame.transform.scale(pygame.image.load('imgs/jogador/jogador.png'), (35, 35))
 colega_img = pygame.transform.scale(pygame.image.load('imgs/colegas/colega.png'), (35, 35))
@@ -54,14 +55,14 @@ cor_opcao = pygame.Color(132, 174, 164)
 cor = 'white'
 
 nivel = 0
-tempo_inicial = 3500
+tempo_inicial = 2700
 vidas = 3
 pontuacao = 0
 ganha_pontos = 5
 direcao = DIR
 velocidade_jog = 0.25
-linha_inicial = 10
-coluna_inicial = 3
+linha_inicial = 1
+coluna_inicial = 19
 pode_mover = True
 
 professor_img = ifgw_img
@@ -118,10 +119,10 @@ class Professor :
         """
 
         if not self.morte :
-            tela.blit(self.img, (self.coluna*COL, self.linha*LIN))
-        prof_rect = pygame.rect.Rect(self.coluna*COL, self.linha*LIN, 35, 35)
+            tela.blit(self.img, (self.coluna*COL, self.linha*LIN + 5))
+        prof_rect = pygame.rect.Rect(self.coluna*COL, self.linha*LIN + 5, 35, 35)
         return prof_rect
-    
+
     def verif_colisoes(self) :
         """
         Método que verifica para quais lados o professor pode andar
@@ -151,7 +152,7 @@ class Professor :
             self.movimentos[1] = True
         
         return self.movimentos
-    
+
     def anda(self) :
         """
         Método que faz a movimentação do professor de acordo com as coordenadas do alvo
@@ -292,8 +293,13 @@ class Professor :
                     else :
                         self.linha += self.velocidade
 
+            if self.coluna < 0 :
+                self.coluna = 40
+            if self.coluna > 40 :
+                self.coluna = 0
+
         return self.linha, self.coluna, self.direcao
-        
+
 def desenha_labirinto(lab) :
     """
     Função que desenha a tela do labirinto a partir de uma matriz,
@@ -354,13 +360,13 @@ def desenha_labirinto(lab) :
 
     pygame.draw.rect(tela, cor_linhas_lab, (0, ALTURA-82, LARGURA, 82))
 
-    pygame.draw.rect(tela, 'white', ((60, 800), (0.215*tempo_inicial, 30)))
+    pygame.draw.rect(tela, 'white', ((60, 800), (0.295*tempo_inicial, 30)))
     if tempo > tempo_inicial/2 :
-        pygame.draw.rect(tela, 'green', ((60, 800), (0.215*tempo, 30)))
+        pygame.draw.rect(tela, 'green', ((60, 800), (0.295*tempo, 30)))
     elif tempo > tempo_inicial/4 :
-        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.215*tempo, 30)))
+        pygame.draw.rect(tela, 'yellow', ((60, 800), (0.295*tempo, 30)))
     else :
-        pygame.draw.rect(tela, 'red', ((60, 800), (0.215*tempo, 30)))
+        pygame.draw.rect(tela, 'red', ((60, 800), (0.295*tempo, 30)))
 
     if vidas > 0 :
         tela.blit(vida_img, (1050, 800))
@@ -379,13 +385,13 @@ def desenha_jogador() :
     """
 
     if direcao == DIR :
-        tela.blit(pygame.transform.flip(jogador_img, True, False), (COL*jog_coluna, LIN*jog_linha))
+        tela.blit(pygame.transform.flip(jogador_img, True, False), (COL*jog_coluna, LIN*jog_linha + 2))
     elif direcao == ESQ :
-        tela.blit(jogador_img, (COL*jog_coluna, LIN*jog_linha))
+        tela.blit(jogador_img, (COL*jog_coluna, LIN*jog_linha + 2))
     elif direcao == CIM :
-        tela.blit(pygame.transform.flip(jogador_img, True, False), (COL*jog_coluna, LIN*jog_linha))
+        tela.blit(pygame.transform.flip(jogador_img, True, False), (COL*jog_coluna, LIN*jog_linha + 2))
     elif direcao == BAI :
-        tela.blit(jogador_img, (COL*jog_coluna, LIN*jog_linha))
+        tela.blit(jogador_img, (COL*jog_coluna, LIN*jog_linha + 2))
 
 def verifica_posicao(lin, col) :
     """
@@ -462,6 +468,7 @@ def menu_inicial() :
         sair_txt = fonte.render('Sair', True, cor_opcao)
         carregar_txt = fonte.render('Carregar Jogo', True, cor_opcao)
         ranking_txt = fonte.render('Ranking', True, cor_opcao)
+        creditos_txt = fonte_creditos.render('Criado por Carolina Momoli e Victor Amaral - CC Unicamp 024', True, cor)
 
         titulo_rect = titulo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 200))
         novo_jogo_rect = novo_jogo_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 60))
@@ -469,6 +476,7 @@ def menu_inicial() :
         informacoes_rect = informacoes_txt.get_rect(center=(LARGURA/2, ALTURA / 2 + 60))
         ranking_rect = ranking_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 120))
         sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 180))
+        creditos_rect = creditos_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 400))
 
         tela.blit(titulo_txt, titulo_rect)
         tela.blit(novo_jogo_txt, novo_jogo_rect)
@@ -476,6 +484,7 @@ def menu_inicial() :
         tela.blit(informacoes_txt, informacoes_rect)
         tela.blit(ranking_txt, ranking_rect)
         tela.blit(sair_txt, sair_rect)
+        tela.blit(creditos_txt, creditos_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -602,25 +611,34 @@ def pause() :
         sair_txt = fonte.render('Sair', True, cor_opcao)
         voltar_txt = fonte.render('Voltar', True, cor_opcao)
         salvar_txt = fonte.render('Salvar', True, cor_opcao)
+        menu_txt = fonte.render('Menu Inicial', True, cor_opcao)
+
 
         sair_rect = sair_txt.get_rect(center=(LARGURA/2, ALTURA/2 - 50))
         voltar_rect = voltar_txt.get_rect(center=(LARGURA/2, ALTURA/2))
         salvar_rect = salvar_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 50))
+        menu_rect = menu_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 100))
 
         tela.blit(sair_txt, sair_rect)
         tela.blit(voltar_txt, voltar_rect)
         tela.blit(salvar_txt, salvar_rect)
+        tela.blit(menu_txt, menu_rect)        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 salvar_jogo()
                 pygame.quit()
-                sys.exit()
+                sys.exit()    
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if sair_rect.collidepoint(event.pos):
                     som_click.play()
                     pygame.quit()
                     sys.exit()
+                if menu_rect.collidepoint(event.pos):
+                    som_click.play()
+                    salvar_jogo()
+                    menu_inicial()
+                    return                    
                 if voltar_rect.collidepoint(event.pos):
                     som_click.play()
                     return
@@ -649,13 +667,15 @@ def perdeu_jogo() :
         pontuacao_txt = fonte.render(f'Pontuação: {pontuacao}', True, cor_texto)
         novo_jogo_txt = fonte.render('Jogar novamente', True, cor_opcao)
         sair_txt = fonte.render('Sair', True, cor_opcao)
+        menu_txt = fonte.render('Menu Inicial', True, cor_opcao)
 
         fim_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 200))
         exame_rect = exame_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 100))
         estude_rect = estude_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 40))
         pontuacao_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 70))
-        novo_jogo_rect = novo_jogo_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 170))
-        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 240))
+        novo_jogo_rect = novo_jogo_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 220))
+        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 360))
+        menu_rect = menu_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 290))
 
         tela.blit(fim_txt, fim_rect)
         tela.blit(exame_txt, exame_rect)
@@ -663,6 +683,7 @@ def perdeu_jogo() :
         tela.blit(pontuacao_txt, pontuacao_rect)
         tela.blit(novo_jogo_txt, novo_jogo_rect)
         tela.blit(sair_txt, sair_rect)
+        tela.blit(menu_txt, menu_rect)        
 
         for event in pygame.event.get() :
             if event.type == pygame.QUIT :
@@ -673,6 +694,10 @@ def perdeu_jogo() :
                     som_click.play()
                     pygame.quit()
                     sys.exit()
+                if menu_rect.collidepoint(event.pos):
+                    som_click.play()
+                    menu_inicial()
+                    return                
                 if novo_jogo_rect.collidepoint(event.pos) :
                     som_click.play()
                     inserir_nome()
@@ -725,13 +750,16 @@ def ganhou_jogo() :
         pontuacao_txt = fonte.render(f'Pontuação: {pontuacao}', True, cor_texto)
         novo_jogo_txt = fonte.render('Jogar novamente', True, cor_opcao)
         sair_txt = fonte.render('Sair', True, cor_opcao)
+        menu_txt = fonte.render('Menu Inicial', True, cor_opcao)
+
 
         fim_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 200))
         exame_rect = exame_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 100))
         estude_rect = estude_txt.get_rect(center = (LARGURA/2, ALTURA/2 - 40))
         pontuacao_rect = fim_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 70))
         novo_jogo_rect = novo_jogo_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 170))
-        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 240))
+        sair_rect = sair_txt.get_rect(center = (LARGURA/2, ALTURA/2 + 310))
+        menu_rect = menu_txt.get_rect(center=(LARGURA/2, ALTURA/2 + 240))
 
         tela.blit(fim_txt, fim_rect)
         tela.blit(exame_txt, exame_rect)
@@ -739,6 +767,7 @@ def ganhou_jogo() :
         tela.blit(pontuacao_txt, pontuacao_rect)
         tela.blit(novo_jogo_txt, novo_jogo_rect)
         tela.blit(sair_txt, sair_rect)
+        tela.blit(menu_txt, menu_rect)        
 
         for event in pygame.event.get() :
             if event.type == pygame.QUIT :
@@ -749,6 +778,10 @@ def ganhou_jogo() :
                     som_click.play()
                     pygame.quit()
                     sys.exit()
+                if menu_rect.collidepoint(event.pos):
+                    som_click.play()
+                    menu_inicial()
+                    return                    
                 if novo_jogo_rect.collidepoint(event.pos) :
                     som_click.play()
                     inserir_nome()
@@ -814,7 +847,9 @@ def mostrar_ranking() :
 
     ranking = carregar_ranking()
     ranking_ordenado = sorted(ranking.items(), key=lambda item: item[1], reverse=True)
- 
+    
+    top_9_ranking = ranking_ordenado[:9]
+
     while True:
         tela.fill(cor_fundo)
         ranking_txt = fonte.render('Ranking', True, cor_titulo)
@@ -826,7 +861,7 @@ def mostrar_ranking() :
         tela.blit(voltar_txt, voltar_rect)
 
         y_pos = 200
-        for nome, pontos in ranking_ordenado:
+        for nome, pontos in top_9_ranking:
             posicao_txt = fonte.render(f'{nome} - {pontos} pontos!', True, cor_texto)
             posicao_rect = posicao_txt.get_rect(center=(LARGURA/2, y_pos))
             tela.blit(posicao_txt, posicao_rect)
@@ -858,8 +893,8 @@ def colisao_relogio() :
         if jogador_rect.colliderect(relogio_rect) :
             pegou_relogio = True
             som_pegou_relogio.play()
-            if tempo + 1000 <= tempo_inicial :
-                tempo += 1000
+            if tempo + 700 <= tempo_inicial :
+                tempo += 700
             else :
                 tempo = tempo_inicial
 
