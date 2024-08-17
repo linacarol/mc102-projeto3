@@ -1229,7 +1229,7 @@ while rodando :
         som_perdeu.play()
         perdeu_jogo()
     
-    if prof_morto and quantos_pegou == 15 and colega_salvo :
+    if prof_morto and colega_salvo :
         nivel += 1
         if nivel == 1 :
             tempo = 3500
